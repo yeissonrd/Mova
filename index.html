@@ -1,12 +1,341 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Plata</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOVA — Mueve tu dinero. Maneja tu futuro.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@400..800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-   
-<script src="menu.js"></script>
+
+  <!-- ===================== LANDING ===================== -->
+  <section id="screen-landing" class="screen active">
+    <div class="landing">
+      <header class="landing-nav">
+        <div class="logo" aria-label="MOVA">
+          <svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg>
+          <span>MOVA</span>
+        </div>
+        <nav>
+          <button class="nav-link active">Inicio</button>
+          <button class="nav-link">Beneficios</button>
+          <button class="nav-link">Productos</button>
+          <button class="nav-link">Ayuda</button>
+        </nav>
+        <div class="nav-actions">
+          <button class="btn btn-ghost" data-go="login"><span>Ingresar</span></button>
+          <button class="btn btn-primary" data-go="register"><span>Abrir mi cuenta</span></button>
+        </div>
+      </header>
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span></span> Tu dinero, a tu ritmo</div>
+            <h1>Muévete hacia una vida financiera más simple.</h1>
+            <p>Controla tus cuentas, transfiere y toma mejores decisiones desde un solo lugar. Seguro, claro y siempre contigo.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" data-go="register"><i data-icon="arrow" data-size="18"></i><span>Comenzar ahora</span></button>
+              <button class="btn btn-secondary" data-go="login"><span>Ya tengo una cuenta</span></button>
+            </div>
+            <div class="trust-row">
+              <span><i data-icon="shield" data-size="18"></i> Datos protegidos</span>
+              <span><i data-icon="check" data-size="18"></i> Sin costos ocultos</span>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="floating-pill pill-one">+ $320.000<small>Transferencia recibida</small></div>
+            <div class="floating-pill pill-two"><i data-icon="shield" data-size="20"></i><small>Tu dinero está protegido</small></div>
+            <div class="phone">
+              <div class="phone-top">
+                <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg></div>
+                <span>•••</span>
+              </div>
+              <p>Saldo total</p>
+              <strong>$4.970.500</strong>
+              <div class="phone-card">
+                <span>Cuenta MOVA</span>
+                <b>•••• 4832</b>
+                <small>VISA</small>
+              </div>
+              <div class="phone-actions">
+                <span><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg></i>Enviar</span>
+                <span><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></i>Consignar</span>
+                <span><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></svg></i>Movimientos</span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="proof">
+          <span>Más control</span>
+          <b>3 productos en una sola experiencia</b>
+          <span>Menos complicaciones</span>
+        </section>
+        <section class="products">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow"><span></span> Hecho para ti</div>
+              <h2>Todo lo que necesitas para avanzar</h2>
+            </div>
+            <p>Productos simples, transparentes y diseñados para tu día a día.</p>
+          </div>
+          <div class="product-grid">
+            <article class="product-card mint">
+              <i><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3v-11a3 3 0 0 1 3-3h12v4" /><path d="M15 12h5M16.5 12h.1" /></svg></i>
+              <span>01</span>
+              <h3>Cuenta de ahorros</h3>
+              <p>Haz crecer tu dinero y úsalo cuando lo necesites.</p>
+              <button data-go="register">Conocer más <i data-icon="arrow" data-size="17"></i></button>
+            </article>
+            <article class="product-card blue">
+              <i><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg></i>
+              <span>02</span>
+              <h3>Cuenta corriente</h3>
+              <p>Flexibilidad para moverte, incluso con sobregiro de hasta 20 %.</p>
+              <button data-go="register">Conocer más <i data-icon="arrow" data-size="17"></i></button>
+            </article>
+            <article class="product-card violet">
+              <i><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3" /><path d="M2 9h20M6 15h4" /></svg></i>
+              <span>03</span>
+              <h3>Tarjeta de crédito</h3>
+              <p>Compra a tu ritmo con tasas claras según tus cuotas.</p>
+              <button data-go="register">Conocer más <i data-icon="arrow" data-size="17"></i></button>
+            </article>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+        <p>Mueve tu dinero. Maneja tu futuro.</p>
+        <span>© 2026 MOVA · Proyecto académico</span>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ===================== LOGIN ===================== -->
+  <section id="screen-login" class="screen">
+    <div class="auth-page">
+      <section class="auth-brand">
+        <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+        <div class="auth-message">
+          <div class="quote-mark">&ldquo;</div>
+          <h2>Tu próxima decisión financiera comienza aquí.</h2>
+          <p>Una experiencia simple para que siempre tengas el control.</p>
+        </div>
+        <div class="auth-glow"></div>
+        <div class="auth-balance">
+          <span>Balance disponible</span>
+          <b>$4.970.500</b>
+          <small><i>↑</i> 8,4 % este mes</small>
+        </div>
+        <small class="auth-copyright">© 2026 MOVA · Tus datos están protegidos</small>
+      </section>
+      <section class="auth-form-wrap">
+        <button class="back-link" data-go="landing">← Volver al inicio</button>
+        <form class="auth-form" id="login-form">
+          <div class="mobile-logo">
+            <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+          </div>
+          <div class="eyebrow"><span></span> Bienvenido de nuevo</div>
+          <h1>Ingresa a tu cuenta</h1>
+          <p>Qué bueno verte. Tus finanzas te esperan.</p>
+          <label class="field">
+            <span>Usuario</span>
+            <div class="field-control"><i data-icon="user" data-size="18"></i><input type="text" placeholder="Tu nombre de usuario" /></div>
+          </label>
+          <label class="field">
+            <span>Contraseña</span>
+            <div class="field-control"><i data-icon="lock" data-size="18"></i><input type="password" placeholder="Ingresa tu contraseña" /><i data-icon="eye" data-size="17"></i></div>
+          </label>
+          <div class="form-meta">
+            <label><input type="checkbox" /> Recordarme</label>
+            <button type="button">¿Olvidaste tu contraseña?</button>
+          </div>
+          <button type="submit" class="btn btn-primary full"><span>Ingresar de forma segura</span></button>
+          <div class="attempts">
+            <i data-icon="shield" data-size="18"></i>
+            <span>Acceso protegido. Tienes <b>3 intentos disponibles.</b></span>
+          </div>
+          <div class="auth-divider"><span>¿Eres administrador?</span></div>
+          <button type="button" class="btn btn-secondary full" data-go="admin"><span>Acceso administrativo</span></button>
+          <p class="auth-switch">¿Aún no tienes cuenta? <button type="button" data-go="register">Regístrate</button></p>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <!-- ===================== REGISTER ===================== -->
+  <section id="screen-register" class="screen">
+    <div class="auth-page">
+      <section class="auth-brand">
+        <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+        <div class="auth-message">
+          <div class="quote-mark">&ldquo;</div>
+          <h2>Tu próxima decisión financiera comienza aquí.</h2>
+          <p>Una experiencia simple para que siempre tengas el control.</p>
+        </div>
+        <div class="auth-glow"></div>
+        <div class="auth-balance">
+          <span>Balance disponible</span>
+          <b>$4.970.500</b>
+          <small><i>↑</i> 8,4 % este mes</small>
+        </div>
+        <small class="auth-copyright">© 2026 MOVA · Tus datos están protegidos</small>
+      </section>
+      <section class="auth-form-wrap register-form-wrap">
+        <button class="back-link" data-go="landing">← Volver al inicio</button>
+        <form class="auth-form" id="register-form">
+          <div class="mobile-logo">
+            <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+          </div>
+          <div class="eyebrow"><span></span> Empieza hoy</div>
+          <h1>Crea tu cuenta MOVA</h1>
+          <p>Completa tus datos y elige tu primer producto.</p>
+          <div class="form-grid">
+            <label class="field"><span>Nombre completo</span><div class="field-control"><input type="text" placeholder="Ej. Laura Gómez" /></div></label>
+            <label class="field"><span>Identificación</span><div class="field-control"><input type="text" placeholder="Número de documento" /></div></label>
+            <label class="field"><span>Celular</span><div class="field-control"><input type="text" placeholder="+57 300 000 0000" /></div></label>
+            <label class="field"><span>Correo electrónico</span><div class="field-control"><input type="email" placeholder="nombre@correo.com" /></div></label>
+            <label class="field"><span>Nombre de usuario</span><div class="field-control"><input type="text" placeholder="Elige tu usuario" /></div></label>
+            <label class="field"><span>Contraseña</span><div class="field-control"><input type="password" placeholder="Mínimo 8 caracteres" /><i data-icon="eye" data-size="17"></i></div></label>
+            <label class="field"><span>Confirmar contraseña</span><div class="field-control"><input type="password" placeholder="Repite tu contraseña" /><i data-icon="eye" data-size="17"></i></div></label>
+          </div>
+          <label class="field">
+            <span>Producto financiero inicial</span>
+            <div class="field-control">
+              <i data-icon="wallet" data-size="18"></i>
+              <select>
+                <option value="ahorros">Cuenta de ahorros</option>
+                <option value="corriente">Cuenta corriente</option>
+                <option value="credito">Tarjeta de crédito</option>
+              </select>
+            </div>
+          </label>
+          <label class="terms"><input type="checkbox" /> Acepto los términos de uso y la política de tratamiento de datos.</label>
+          <button type="submit" class="btn btn-primary full"><span>Crear mi cuenta</span></button>
+          <p class="auth-switch">¿Ya tienes una cuenta? <button type="button" data-go="login">Ingresa</button></p>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <!-- ===================== CLIENTE (SHELL COMPARTIDO) ===================== -->
+  <section id="screen-client" class="screen">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+        <nav id="client-sidebar-nav">
+          <button data-go="dashboard"><i data-icon="home" data-size="20"></i><span>Inicio</span></button>
+          <button data-go="accounts"><i data-icon="wallet" data-size="20"></i><span>Mis cuentas</span></button>
+          <button data-go="card"><i data-icon="card" data-size="20"></i><span>Mi tarjeta</span></button>
+          <button data-go="transfer"><i data-icon="send" data-size="20"></i><span>Transferir</span></button>
+          <button data-go="movements"><i data-icon="history" data-size="20"></i><span>Movimientos</span></button>
+          <button data-go="profile"><i data-icon="user" data-size="20"></i><span>Perfil y seguridad</span></button>
+        </nav>
+        <div class="sidebar-help">
+          <i data-icon="shield"></i>
+          <b>¿Necesitas ayuda?</b>
+          <p>Estamos aquí para ti.</p>
+          <button>Ir al centro de ayuda</button>
+        </div>
+        <button class="logout" data-go="landing"><i data-icon="logout" data-size="19"></i> <span>Cerrar sesión</span></button>
+      </aside>
+      <div class="app-main">
+        <header class="app-header">
+          <div class="mobile-brand">
+            <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+          </div>
+          <div class="breadcrumbs">MOVA <span>/</span> <span id="client-breadcrumb-label"></span></div>
+          <div class="user-tools">
+            <button class="icon-button"><i data-icon="bell" data-size="20"></i></button>
+            <div class="avatar">JG</div>
+            <div><b>Juan Gómez</b><small>Cliente MOVA</small></div>
+            <i data-icon="chevron" data-size="16"></i>
+          </div>
+        </header>
+        <main class="content" id="client-content"></main>
+        <nav class="mobile-nav" id="client-mobile-nav">
+          <button data-go="dashboard"><i data-icon="home" data-size="20"></i><span>Inicio</span></button>
+          <button data-go="accounts"><i data-icon="wallet" data-size="20"></i><span>Mis</span></button>
+          <button data-go="card"><i data-icon="card" data-size="20"></i><span>Mi</span></button>
+          <button data-go="transfer"><i data-icon="send" data-size="20"></i><span>Transferir</span></button>
+          <button data-go="movements"><i data-icon="history" data-size="20"></i><span>Movimientos</span></button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN ===================== -->
+  <section id="screen-admin" class="screen">
+    <div class="app-shell admin-shell">
+      <aside class="sidebar">
+        <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+        <span class="admin-badge">ADMINISTRACIÓN</span>
+        <nav>
+          <button class="active"><i data-icon="home" data-size="20"></i> <span>Resumen</span></button>
+          <button><i data-icon="users" data-size="20"></i> <span>Clientes</span></button>
+          <button><i data-icon="wallet" data-size="20"></i> <span>Productos</span></button>
+          <button><i data-icon="settings" data-size="20"></i> <span>Configuración</span></button>
+        </nav>
+        <button class="logout" data-go="landing"><i data-icon="logout" data-size="20"></i> <span>Cerrar sesión</span></button>
+      </aside>
+      <div class="app-main">
+        <header class="app-header">
+          <div class="mobile-brand">
+            <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
+          </div>
+          <div class="breadcrumbs">Panel administrativo</div>
+          <div class="user-tools">
+            <div class="avatar">AM</div>
+            <div><b>Admin MOVA</b><small>Administrador</small></div>
+          </div>
+        </header>
+        <main class="content">
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow"><span></span> Gestión MOVA</div>
+              <h1>Panel administrativo</h1>
+              <p>Supervisa clientes, productos y actividad del sistema.</p>
+            </div>
+            <button class="btn btn-primary"><i data-icon="plus" data-size="18"></i><span>Registrar cliente</span></button>
+          </div>
+          <div class="admin-metrics">
+            <div>
+              <i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4" /><path d="M2 21a7 7 0 0 1 14 0M16 5a4 4 0 0 1 0 7M18 15a6 6 0 0 1 4 6" /></svg></i>
+              <span><small>Clientes totales</small><b>1.248</b><em>+ 12 este mes</em></span>
+            </div>
+            <div>
+              <i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3v-11a3 3 0 0 1 3-3h12v4" /><path d="M15 12h5M16.5 12h.1" /></svg></i>
+              <span><small>Productos activos</small><b>2.864</b><em>98,4 % activos</em></span>
+            </div>
+            <div>
+              <i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 5v6c0 5.2 3.3 9.3 8 11 4.7-1.7 8-5.8 8-11V5Z" /><path d="m9 12 2 2 4-5" /></svg></i>
+              <span><small>Clientes bloqueados</small><b>18</b><em>Requieren revisión</em></span>
+            </div>
+          </div>
+          <section class="panel client-table">
+            <div class="panel-title">
+              <div><h2>Gestión de clientes</h2><p>Consulta y administra los usuarios registrados</p></div>
+              <div class="search"><i data-icon="search" data-size="18"></i><input placeholder="Buscar cliente..." /></div>
+            </div>
+            <div class="table-head">
+              <span>CLIENTE</span>
+              <span>IDENTIFICACIÓN</span>
+              <span>PRODUCTOS</span>
+              <span>ESTADO</span>
+              <span>ACCIONES</span>
+            </div>
+            <div id="admin-client-rows"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js" defer></script>
 </body>
 </html>
