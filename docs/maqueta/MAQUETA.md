@@ -1,6 +1,6 @@
 # Maqueta del proyecto — MOVA
 
-Diseño visual de la aplicación, construido primero como prototipo en Figma Make y luego llevado a HTML, CSS y JavaScript puro (`index.html`, `styles.css`, `app.js`). Identidad: banca digital con paleta azul petróleo (`#0D333B`) y verde azulado (`#20A995`), tipografía legible y componentes reutilizables (botones, tarjetas de producto, formularios). Diseño responsivo para escritorio, tablet y móvil.
+Diseño visual de la aplicación, construido primero como prototipo en Figma Make y luego llevado a HTML, CSS y JavaScript puro (`index.html`, `styles.css`, `js/ui/*.js`). Identidad: banca digital con paleta azul petróleo (`#0D333B`) y verde azulado (`#20A995`), tipografía legible y componentes reutilizables (botones, tarjetas de producto, formularios). Diseño responsivo para escritorio, tablet y móvil.
 
 **Flujo de navegación:** inicio → registro / inicio de sesión → panel del cliente → perfil. El administrador entra a su propio panel.
 
