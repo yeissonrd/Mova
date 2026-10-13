@@ -37,7 +37,7 @@ menu.js               Versión de consola (fase 1)
 
 ## Cómo ejecutarlo
 
-Abrir `index.html` en el navegador (no necesita instalación). Administrador inicial: usuario `admin`, clave `Admin1234`.
+Abrir `index.html` en el navegador (no necesita instalación). 
 
 ## Flujo de trabajo en Git
 
