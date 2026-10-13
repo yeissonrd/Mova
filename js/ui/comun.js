@@ -3,6 +3,11 @@
    datos de ejemplo de movimientos. Lo usan varias HU: cambios aquí se avisan al equipo. */
 
 /* ===================== ÍCONOS ===================== */
+/* ===================== SESIÓN (HU-02) ===================== */
+// Se crean UNA sola vez y quedan globales para todas las pantallas.
+const sistema = new Sistema();
+let clienteActual = null;
+
 const ICON_PATHS = {
   home: '<path d="m3 10 9-7 9 7" /><path d="M5 9v11h14V9M9 20v-6h6v6" />',
   wallet: '<path d="M4 6.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3v-11a3 3 0 0 1 3-3h12v4" /><path d="M15 12h5M16.5 12h.1" />',
