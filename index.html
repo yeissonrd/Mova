@@ -196,26 +196,26 @@
           <h1>Crea tu cuenta MOVA</h1>
           <p>Completa tus datos y elige tu primer producto.</p>
           <div class="form-grid">
-            <label class="field"><span>Nombre completo</span><div class="field-control"><input type="text" placeholder="Ej. Laura Gómez" /></div></label>
-            <label class="field"><span>Identificación</span><div class="field-control"><input type="text" placeholder="Número de documento" /></div></label>
-            <label class="field"><span>Celular</span><div class="field-control"><input type="text" placeholder="+57 300 000 0000" /></div></label>
-            <label class="field"><span>Correo electrónico</span><div class="field-control"><input type="email" placeholder="nombre@correo.com" /></div></label>
-            <label class="field"><span>Nombre de usuario</span><div class="field-control"><input type="text" placeholder="Elige tu usuario" /></div></label>
-            <label class="field"><span>Contraseña</span><div class="field-control"><input type="password" placeholder="Mínimo 8 caracteres" /><i data-icon="eye" data-size="17"></i></div></label>
-            <label class="field"><span>Confirmar contraseña</span><div class="field-control"><input type="password" placeholder="Repite tu contraseña" /><i data-icon="eye" data-size="17"></i></div></label>
+            <label class="field"><span>Nombre completo</span><div class="field-control"><input type="text" id="reg-nombre"placeholder="Ej. Laura Gómez" /></div></label>
+            <label class="field"><span>Identificación</span><div class="field-control"><input type="text" id="reg-identificacion" placeholder="Número de documento" /></div></label>
+            <label class="field"><span>Celular</span><div class="field-control"><input type="text" id="reg-telefono" placeholder="+57 300 000 0000" /></div></label>
+            <label class="field"><span>Correo electrónico</span><div class="field-control"><input type="email"id="reg-correo"  placeholder="nombre@correo.com" /></div></label>
+            <label class="field"><span>Nombre de usuario</span><div class="field-control"><input type="text" id="reg-usuario" placeholder="Elige tu usuario" /></div></label>
+            <label class="field"><span>Contraseña</span><div class="field-control"><input type="password" id="reg-clave" placeholder="Mínimo 8 caracteres" /><i data-icon="eye" data-size="17"></i></div></label>
+            <label class="field"><span>Confirmar contraseña</span><div class="field-control"><input type="password" id="reg-confirmar" placeholder="Repite tu contraseña" /><i data-icon="eye" data-size="17"></i></div></label>
           </div>
           <label class="field">
             <span>Producto financiero inicial</span>
             <div class="field-control">
               <i data-icon="wallet" data-size="18"></i>
-              <select>
+              <select id="reg-producto">
                 <option value="ahorros">Cuenta de ahorros</option>
                 <option value="corriente">Cuenta corriente</option>
                 <option value="credito">Tarjeta de crédito</option>
               </select>
             </div>
           </label>
-          <label class="terms"><input type="checkbox" /> Acepto los términos de uso y la política de tratamiento de datos.</label>
+          <label class="terms"><input type="checkbox" id="reg-terminos" /> Acepto los términos de uso y la política de tratamiento de datos.</label>
           <button type="submit" class="btn btn-primary full"><span>Crear mi cuenta</span></button>
           <p class="auth-switch">¿Ya tienes una cuenta? <button type="button" data-go="login">Ingresa</button></p>
         </form>
