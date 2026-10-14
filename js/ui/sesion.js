@@ -12,6 +12,17 @@ function mostrarIntentosLogin(usuario) {
     // Si el usuario no existe, se deja el texto como está
   }
 }
+// Pone el nombre y las iniciales del cliente en el encabezado
+function actualizarEncabezadoCliente() {
+  if (!clienteActual) return;
+  const avatar = document.querySelector("#screen-client .user-tools .avatar");
+  const nombre = document.querySelector("#screen-client .user-tools b");
+  const palabras = clienteActual.nombre.split(/\s+/).filter(Boolean);
+  let iniciales = palabras[0] ? palabras[0][0] : "";
+  if (palabras.length > 1) iniciales += palabras[palabras.length - 1][0];
+  if (avatar) avatar.textContent = iniciales.toUpperCase();
+  if (nombre) nombre.textContent = clienteActual.nombre;
+}
 
 alIniciar(() => {
   // ---------- LOGIN ----------
@@ -32,6 +43,7 @@ alIniciar(() => {
       loginError.style.display = "none";
       try {
         clienteActual = sistema.autenticar(usuario, clave);
+        actualizarEncabezadoCliente();
         document.getElementById("login-clave").value = "";
         go("dashboard");
       } catch (error) {
