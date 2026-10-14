@@ -95,6 +95,7 @@ alIniciar(() => {
         sistema.registrarCliente(datos, producto);
         // Tras registrar, se inicia sesión automáticamente
         clienteActual = sistema.autenticar(datos.userName, datos.clave);
+        actualizarEncabezadoCliente();
         registerForm.reset();
         go("dashboard");
       } catch (error) {
@@ -106,6 +107,6 @@ alIniciar(() => {
     // ---------- CERRAR SESIÓN ----------
   const botonSalir = document.querySelector("#screen-client .logout");
   if (botonSalir) botonSalir.addEventListener("click", () => { clienteActual = null; });
-  
+
   go("landing");
 });
