@@ -23,7 +23,9 @@ function notaCuentaHtml(p) {
   const texto =
     p.codigo === "ahorros"
       ? "Los retiros aplican un interés del 1,5 %."
-      : `Sobregiro: puedes retirar hasta ${formatMoney(p.limiteRetiro())} (saldo + 20 %).`;
+      : p.saldo <= 0
+        ? "No puedes retirar hasta volver a consignar (tu saldo está en 0 o negativo)."
+        : `Sobregiro: puedes retirar hasta ${formatMoney(p.limiteRetiro())} (saldo + 20 %).`;
   return `<div class="rule-note"><i data-icon="shield" data-size="17"></i> ${texto}</div>`;
 }
 
@@ -32,7 +34,7 @@ function cuentaCardHtml(p, destacada) {
     <section class="panel account-detail${destacada ? " featured" : ""}">
       <div class="account-detail-top"><i data-icon="wallet"></i><span>${p.tipo}</span><small>ACTIVA</small></div>
       <p>Saldo disponible</p>
-      <h2>${formatMoney(p.saldo)}</h2>
+            <h2${p.saldo < 0 ? ' style="color:var(--red)"' : ""}>${formatMoney(p.saldo)}</h2>
       <div class="account-number"><span>Número de cuenta</span><b>${p.numero}</b></div>
       <label class="field" style="margin:16px 0 0"><span>Valor</span>
         <div class="field-control"><input id="cuenta-valor-${p.numero}" inputmode="numeric" placeholder="$ 250.000" /></div>
@@ -70,7 +72,7 @@ function accountsHtml() {
   if (!cliente) return accountsEjemploHtml(); // sin sesión: datos de ejemplo
   const cuentas = cuentasDelCliente(cliente);
   const tieneAhorros = cuentas.some((p) => p.codigo === "ahorros");
-
+  const tieneCorriente = cuentas.some((p) => p.codigo === "corriente");
   return `
   <div class="page-heading">
     <div>
@@ -78,7 +80,10 @@ function accountsHtml() {
       <h1>Mis cuentas</h1>
       <p>Consulta saldos, movimientos y acciones disponibles.</p>
     </div>
-    ${tieneAhorros ? "" : `<button class="btn btn-primary" id="abrir-ahorros"><span>Abrir cuenta de ahorros</span></button>`}
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+      ${tieneAhorros ? "" : `<button class="btn btn-primary" id="abrir-ahorros"><span>Abrir cuenta de ahorros</span></button>`}
+      ${tieneCorriente ? "" : `<button class="btn btn-primary" id="abrir-corriente"><span>Abrir cuenta corriente</span></button>`}
+    </div>
   </div>
   <div id="accounts-notice"></div>
   <div class="account-detail-grid">
@@ -142,6 +147,13 @@ function wireAccounts() {
   if (abrir) {
     abrir.addEventListener("click", () => {
       sistema.abrirProducto(clienteActual, "ahorros");
+      renderClientScreen("accounts");
+    });
+  }
+    const abrirCorriente = document.getElementById("abrir-corriente");
+  if (abrirCorriente) {
+    abrirCorriente.addEventListener("click", () => {
+      sistema.abrirProducto(clienteActual, "corriente");
       renderClientScreen("accounts");
     });
   }
