@@ -23,6 +23,14 @@ function actualizarEncabezadoCliente() {
   if (avatar) avatar.textContent = iniciales.toUpperCase();
   if (nombre) nombre.textContent = clienteActual.nombre;
 }
+// Si no hay sesión iniciada, las pantallas del cliente mandan al login
+const irAPantalla = go;
+go = function (screen) {
+  if (PANTALLAS_CLIENTE[screen] && clienteActual === null) {
+    screen = "login";
+  }
+  irAPantalla(screen);
+};
 
 alIniciar(() => {
   // ---------- LOGIN ----------
@@ -53,7 +61,6 @@ alIniciar(() => {
       mostrarIntentosLogin(usuario);
     });
   }
-
   // ---------- REGISTRO ----------
   const registerForm = document.getElementById("register-form");
   if (registerForm) {
@@ -96,5 +103,9 @@ alIniciar(() => {
       }
     });
   }
+    // ---------- CERRAR SESIÓN ----------
+  const botonSalir = document.querySelector("#screen-client .logout");
+  if (botonSalir) botonSalir.addEventListener("click", () => { clienteActual = null; });
+  
   go("landing");
 });
