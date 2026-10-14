@@ -114,9 +114,9 @@ class Cuenta {
   }
 
   // ÚNICO punto donde cambia el saldo: actualiza el saldo y deja el registro en el historial.
-  _aplicar(tipo, cambio, detalle = {}) {
+  _aplicar(tipo, cambio, detalle = {}, monto = cambio) {
     this.#saldo = this.#saldo + cambio;
-    const movimiento = new Movimiento(tipo, cambio, this.#saldo, detalle);
+    const movimiento = new Movimiento(tipo, monto, this.#saldo, detalle);
     this.#movimientos.push(movimiento);
     return movimiento;
   }
