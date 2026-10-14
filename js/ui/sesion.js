@@ -42,9 +42,47 @@ alIniciar(() => {
     });
   }
 
-  // ---------- REGISTRO (por ahora solo simula; se conecta en los siguientes pasos) ----------
+  // ---------- REGISTRO ----------
   const registerForm = document.getElementById("register-form");
-  if (registerForm) registerForm.addEventListener("submit", (e) => { e.preventDefault(); go("dashboard"); });
+  if (registerForm) {
+    // Aviso de error (se crea aquí para no tocar index.html)
+    const registerError = document.createElement("p");
+    registerError.id = "register-error";
+    registerError.style.color = "#d93025";
+    registerError.style.margin = "8px 0";
+    registerError.style.display = "none";
+    registerForm.querySelector('button[type="submit"]').before(registerError);
 
+    registerForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      registerError.style.display = "none";
+      try {
+        if (!document.getElementById("reg-terminos").checked) {
+          throw new Error("Debes aceptar los términos de uso y la política de datos.");
+        }
+        const datos = {
+          identificacion: document.getElementById("reg-identificacion").value.trim(),
+          nombre: document.getElementById("reg-nombre").value.trim(),
+          telefono: document.getElementById("reg-telefono").value.trim(),
+          userName: document.getElementById("reg-usuario").value.trim(),
+          correo: document.getElementById("reg-correo").value.trim(),
+          clave: document.getElementById("reg-clave").value,
+          confirmarClave: document.getElementById("reg-confirmar").value,
+        };
+        // El select dice "credito", pero Sistema espera "tarjeta"
+        let producto = document.getElementById("reg-producto").value;
+        if (producto === "credito") producto = "tarjeta";
+
+        sistema.registrarCliente(datos, producto);
+        // Tras registrar, se inicia sesión automáticamente
+        clienteActual = sistema.autenticar(datos.userName, datos.clave);
+        registerForm.reset();
+        go("dashboard");
+      } catch (error) {
+        registerError.textContent = error.message;
+        registerError.style.display = "block";
+      }
+    });
+  }
   go("landing");
 });
