@@ -84,13 +84,16 @@ function pintarFilasAdmin() {
       <span><em class="${bloqueado ? "blocked" : "active"}">${bloqueado ? "Bloqueado" : "Activo"}</em></span>
       <div class="row-actions">
         <button title="Ver productos"><i data-icon="eye" data-size="17"></i></button>
-        <button title="Editar"><i data-icon="settings" data-size="17"></i></button>
+        <button title="Editar" data-edit="${escaparHtml(c.userName)}"><i data-icon="settings" data-size="17"></i></button>
         <button title="${bloqueado ? "Desbloquear" : "Bloquear"}" data-toggle-block="${escaparHtml(c.userName)}"><i data-icon="${bloqueado ? "check" : "lock"}" data-size="17"></i></button>
       </div>
     </div>`;
     })
     .join("");
   renderIcons(wrap);
+    wrap.querySelectorAll("[data-edit]").forEach((btn) => {
+    btn.addEventListener("click", () => abrirModalEdicionAdmin(btn.dataset.edit));
+  });
   wrap.querySelectorAll("[data-toggle-block]").forEach((btn) => {
     btn.addEventListener("click", () => alternarBloqueoAdmin(btn.dataset.toggleBlock));
   });
@@ -199,3 +202,69 @@ alIniciar(() => {
   const botonRegistrar = document.querySelector("#screen-admin .page-heading .btn");
   if (botonRegistrar) botonRegistrar.addEventListener("click", abrirModalRegistroAdmin);
 });
+
+/* ===================== MODAL EDITAR CLIENTE (HU-01) ===================== */
+function abrirModalEdicionAdmin(userName) {
+  cerrarModalAdmin();
+  const cliente = sistema.buscarCliente(userName);
+  if (!cliente) {
+    avisoAdmin("El cliente no existe.", false);
+    return;
+  }
+  const fondo = document.createElement("div");
+  fondo.id = "admin-modal";
+  fondo.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:1000;overflow:auto";
+  fondo.innerHTML = `
+    <form id="admin-modal-form" style="width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:24px;background:#fff;border-radius:16px">
+      <h2 style="margin:0 0 4px">Editar cliente</h2>
+      <p style="margin:0 0 16px">Cambia los datos que necesites y guarda.</p>
+      <div class="form-grid">
+        <label class="field"><span>Nombre completo</span><div class="field-control"><input type="text" id="edt-nombre" /></div></label>
+        <label class="field"><span>Identificación</span><div class="field-control"><input type="text" id="edt-identificacion" /></div></label>
+        <label class="field"><span>Celular</span><div class="field-control"><input type="text" id="edt-telefono" /></div></label>
+        <label class="field"><span>Correo electrónico</span><div class="field-control"><input type="email" id="edt-correo" /></div></label>
+        <label class="field"><span>Nombre de usuario</span><div class="field-control"><input type="text" id="edt-usuario" /></div></label>
+      </div>
+      <p id="edt-error" style="color:#d93025;margin:8px 0;display:none"></p>
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
+        <button type="button" class="btn btn-secondary" id="edt-cancelar"><span>Cancelar</span></button>
+        <button type="submit" class="btn btn-primary"><span>Guardar cambios</span></button>
+      </div>
+    </form>`;
+  document.body.appendChild(fondo);
+
+  // Se precargan los datos actuales del cliente.
+  document.getElementById("edt-nombre").value = cliente.nombre;
+  document.getElementById("edt-identificacion").value = cliente.identificacion;
+  document.getElementById("edt-telefono").value = cliente.telefono;
+  document.getElementById("edt-correo").value = cliente.correo;
+  document.getElementById("edt-usuario").value = cliente.userName;
+
+  fondo.addEventListener("click", (e) => {
+    if (e.target === fondo) cerrarModalAdmin();
+  });
+  document.getElementById("edt-cancelar").addEventListener("click", cerrarModalAdmin);
+
+  document.getElementById("admin-modal-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const error = document.getElementById("edt-error");
+    error.style.display = "none";
+    try {
+      const cambios = {
+        nombre: document.getElementById("edt-nombre").value.trim(),
+        identificacion: document.getElementById("edt-identificacion").value.trim(),
+        telefono: document.getElementById("edt-telefono").value.trim(),
+        correo: document.getElementById("edt-correo").value.trim(),
+        userName: document.getElementById("edt-usuario").value.trim(),
+      };
+      adminActual.editarCliente(userName, cambios);
+      cerrarModalAdmin();
+      avisoAdmin(`Cliente ${cambios.nombre} actualizado.`, true);
+      pintarPanelAdmin();
+    } catch (err) {
+      error.textContent = err.message;
+      error.style.display = "block";
+    }
+  });
+}
