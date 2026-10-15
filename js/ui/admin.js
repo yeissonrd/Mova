@@ -228,6 +228,7 @@ function abrirModalEdicionAdmin(userName) {
       </div>
       <p id="edt-error" style="color:#d93025;margin:8px 0;display:none"></p>
       <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
+               <button type="button" class="btn btn-secondary" id="edt-eliminar" style="margin-right:auto;color:#d93025"><span>Eliminar cliente</span></button>
         <button type="button" class="btn btn-secondary" id="edt-cancelar"><span>Cancelar</span></button>
         <button type="submit" class="btn btn-primary"><span>Guardar cambios</span></button>
       </div>
@@ -245,6 +246,21 @@ function abrirModalEdicionAdmin(userName) {
     if (e.target === fondo) cerrarModalAdmin();
   });
   document.getElementById("edt-cancelar").addEventListener("click", cerrarModalAdmin);
+    document.getElementById("edt-eliminar").addEventListener("click", () => {
+    const error = document.getElementById("edt-error");
+    error.style.display = "block";
+    error.innerHTML = `¿Seguro que quieres eliminar a <b>${escaparHtml(cliente.nombre)}</b>? Esta acción no se puede deshacer. <button type="button" id="edt-confirmar-eliminar" class="btn btn-primary" style="margin-left:8px"><span>Sí, eliminar</span></button>`;
+    document.getElementById("edt-confirmar-eliminar").addEventListener("click", () => {
+      try {
+        adminActual.eliminarCliente(userName, true);
+        cerrarModalAdmin();
+        avisoAdmin(`Cliente ${cliente.nombre} eliminado.`, true);
+        pintarPanelAdmin();
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    });
+  });
 
   document.getElementById("admin-modal-form").addEventListener("submit", (e) => {
     e.preventDefault();
