@@ -123,3 +123,79 @@ alIniciar(() => {
   const buscador = document.querySelector("#screen-admin .search input");
   if (buscador) buscador.addEventListener("input", pintarFilasAdmin);
 });
+
+/* ===================== MODAL REGISTRAR CLIENTE (HU-01) ===================== */
+// El modal se crea desde aquí para no tocar index.html.
+function cerrarModalAdmin() {
+  const modal = document.getElementById("admin-modal");
+  if (modal) modal.remove();
+}
+
+function abrirModalRegistroAdmin() {
+  cerrarModalAdmin();
+  const fondo = document.createElement("div");
+  fondo.id = "admin-modal";
+  fondo.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:1000;overflow:auto";
+  fondo.innerHTML = `
+    <form id="admin-modal-form" style="width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:24px;background:#fff;border-radius:16px">
+      <h2 style="margin:0 0 4px">Registrar cliente</h2>
+      <p style="margin:0 0 16px">Completa los datos y elige el producto inicial.</p>
+      <div class="form-grid">
+        <label class="field"><span>Nombre completo</span><div class="field-control"><input type="text" id="adm-nombre" /></div></label>
+        <label class="field"><span>Identificación</span><div class="field-control"><input type="text" id="adm-identificacion" /></div></label>
+        <label class="field"><span>Celular</span><div class="field-control"><input type="text" id="adm-telefono" /></div></label>
+        <label class="field"><span>Correo electrónico</span><div class="field-control"><input type="email" id="adm-correo" /></div></label>
+        <label class="field"><span>Nombre de usuario</span><div class="field-control"><input type="text" id="adm-usuario" /></div></label>
+        <label class="field"><span>Contraseña</span><div class="field-control"><input type="password" id="adm-clave" placeholder="Mínimo 8 caracteres" /></div></label>
+        <label class="field"><span>Confirmar contraseña</span><div class="field-control"><input type="password" id="adm-confirmar" /></div></label>
+        <label class="field"><span>Producto inicial</span><div class="field-control">
+          <select id="adm-producto">
+            <option value="ahorros">Cuenta de ahorros</option>
+            <option value="corriente">Cuenta corriente</option>
+            <option value="tarjeta">Tarjeta de crédito</option>
+          </select>
+        </div></label>
+      </div>
+      <p id="adm-error" style="color:#d93025;margin:8px 0;display:none"></p>
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
+        <button type="button" class="btn btn-secondary" id="adm-cancelar"><span>Cancelar</span></button>
+        <button type="submit" class="btn btn-primary"><span>Registrar</span></button>
+      </div>
+    </form>`;
+  document.body.appendChild(fondo);
+
+  fondo.addEventListener("click", (e) => {
+    if (e.target === fondo) cerrarModalAdmin();
+  });
+  document.getElementById("adm-cancelar").addEventListener("click", cerrarModalAdmin);
+
+  document.getElementById("admin-modal-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const error = document.getElementById("adm-error");
+    error.style.display = "none";
+    try {
+      const datos = {
+        identificacion: document.getElementById("adm-identificacion").value.trim(),
+        nombre: document.getElementById("adm-nombre").value.trim(),
+        telefono: document.getElementById("adm-telefono").value.trim(),
+        userName: document.getElementById("adm-usuario").value.trim(),
+        correo: document.getElementById("adm-correo").value.trim(),
+        clave: document.getElementById("adm-clave").value,
+        confirmarClave: document.getElementById("adm-confirmar").value,
+      };
+      adminActual.registrarCliente(datos, document.getElementById("adm-producto").value);
+      cerrarModalAdmin();
+      avisoAdmin(`Cliente ${datos.nombre} registrado.`, true);
+      pintarPanelAdmin();
+    } catch (err) {
+      error.textContent = err.message;
+      error.style.display = "block";
+    }
+  });
+}
+
+alIniciar(() => {
+  const botonRegistrar = document.querySelector("#screen-admin .page-heading .btn");
+  if (botonRegistrar) botonRegistrar.addEventListener("click", abrirModalRegistroAdmin);
+});
