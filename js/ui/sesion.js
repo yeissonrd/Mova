@@ -79,6 +79,7 @@ alIniciar(() => {
       aviso.style.display = "none";
       try {
         adminActual = sistema.autenticarAdministrador(usuario, clave);
+        pintarPanelAdmin();
         document.getElementById("login-clave").value = "";
         go("admin");
       } catch (error) {
