@@ -23,14 +23,21 @@ function actualizarEncabezadoCliente() {
   if (avatar) avatar.textContent = iniciales.toUpperCase();
   if (nombre) nombre.textContent = clienteActual.nombre;
 }
-// Si no hay sesión iniciada, las pantallas del cliente mandan al login
+// Administrador con sesión iniciada (HU-01). null = nadie ha entrado.
+let adminActual = null;
+
+// Si no hay sesión, las pantallas del cliente y el panel del administrador mandan al login
 const irAPantalla = go;
 go = function (screen) {
   if (PANTALLAS_CLIENTE[screen] && clienteActual === null) {
     screen = "login";
   }
+  if (screen === "admin" && adminActual === null) {
+    screen = "login";
+  }
   irAPantalla(screen);
 };
+  
 
 alIniciar(() => {
   // ---------- LOGIN ----------
@@ -61,6 +68,30 @@ alIniciar(() => {
       mostrarIntentosLogin(usuario);
     });
   }
+
+    // ---------- LOGIN Y CIERRE DE SESIÓN DEL ADMINISTRADOR (HU-01) ----------
+  const botonAdmin = document.querySelector('#login-form [data-go="admin"]');
+  if (botonAdmin) {
+    botonAdmin.addEventListener("click", () => {
+      const usuario = document.getElementById("login-usuario").value.trim();
+      const clave = document.getElementById("login-clave").value;
+      const aviso = document.getElementById("login-error");
+      aviso.style.display = "none";
+      try {
+        adminActual = sistema.autenticarAdministrador(usuario, clave);
+        document.getElementById("login-clave").value = "";
+        go("admin");
+      } catch (error) {
+        aviso.textContent = error.message;
+        aviso.style.display = "block";
+      }
+    });
+  }
+
+  const botonSalirAdmin = document.querySelector("#screen-admin .logout");
+  if (botonSalirAdmin) botonSalirAdmin.addEventListener("click", () => { adminActual = null; });
+
+  
   // ---------- REGISTRO ----------
   const registerForm = document.getElementById("register-form");
   if (registerForm) {
