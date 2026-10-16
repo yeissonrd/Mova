@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MOVA — Mueve tu dinero. Maneja tu futuro.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="css/productos.css" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@400..800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
@@ -89,21 +90,21 @@
               <span>01</span>
               <h3>Cuenta de ahorros</h3>
               <p>Haz crecer tu dinero y úsalo cuando lo necesites.</p>
-              <button data-go="register">Conocer más <i data-icon="arrow" data-size="17"></i></button>
+              <button data-go="register" data-producto="ahorros">Conocer más <i data-icon="arrow" data-size="17"></i></button>
             </article>
             <article class="product-card blue">
               <i><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg></i>
               <span>02</span>
               <h3>Cuenta corriente</h3>
               <p>Flexibilidad para moverte, incluso con sobregiro de hasta 20 %.</p>
-              <button data-go="register">Conocer más <i data-icon="arrow" data-size="17"></i></button>
+              <button data-go="register" data-producto="corriente">Conocer más <i data-icon="arrow" data-size="17"></i></button>
             </article>
             <article class="product-card violet">
               <i><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3" /><path d="M2 9h20M6 15h4" /></svg></i>
               <span>03</span>
               <h3>Tarjeta de crédito</h3>
               <p>Compra a tu ritmo con tasas claras según tus cuotas.</p>
-              <button data-go="register">Conocer más <i data-icon="arrow" data-size="17"></i></button>
+              <button data-go="register" data-producto="credito">Conocer más <i data-icon="arrow" data-size="17"></i></button>
             </article>
           </div>
         </section>
@@ -179,11 +180,7 @@
           <p>Una experiencia simple para que siempre tengas el control.</p>
         </div>
         <div class="auth-glow"></div>
-        <div class="auth-balance">
-          <span>Balance disponible</span>
-          <b>$4.970.500</b>
-          <small><i>↑</i> 8,4 % este mes</small>
-        </div>
+        <div class="auth-producto" id="reg-producto-info" aria-live="polite"></div>
         <small class="auth-copyright">© 2026 MOVA · Tus datos están protegidos</small>
       </section>
       <section class="auth-form-wrap register-form-wrap">
@@ -350,6 +347,7 @@
   <script src="js/ui/navegacion.js" defer></script>
   <script src="js/ui/resumen.js" defer></script>
   <script src="js/ui/cuentas.js" defer></script>
+  <script src="js/ui/productos.js" defer></script>
   <script src="js/ui/tarjeta.js" defer></script>
   <script src="js/ui/transferencias.js" defer></script>
   <script src="js/ui/perfil.js" defer></script>

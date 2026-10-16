@@ -1,0 +1,20 @@
+/* MOVA — css/productos.css (registro: título arriba y beneficios del producto) */
+#screen-register .auth-message { margin: 64px 0 26px; }
+#screen-register .auth-copyright { margin-top: auto; }
+
+.auth-producto {
+  max-width: 460px; padding: 22px 24px; position: relative; z-index: 2;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 18px;
+  backdrop-filter: blur(14px);
+}
+.auth-producto-etiqueta {
+  display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: #65ddc8; margin-bottom: 8px;
+}
+.auth-producto p { margin: 0 0 14px; font: 700 18px/1.35 "Manrope", sans-serif; color: white; }
+.auth-producto ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.auth-producto li { position: relative; padding-left: 24px; font-size: 13px; line-height: 1.5; color: #c6dadc; }
+.auth-producto li::before {
+  content: ""; position: absolute; left: 0; top: 5px; width: 12px; height: 7px;
+  border-left: 2px solid #65ddc8; border-bottom: 2px solid #65ddc8; transform: rotate(-45deg);
+}
