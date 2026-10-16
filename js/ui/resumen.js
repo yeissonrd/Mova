@@ -72,7 +72,7 @@ function dashboardHtml() {
       <h1>Hola, ${cliente.nombre.split(" ")[0]}. Todo bajo control.</h1>
       <p>Este es el resumen de tus finanzas de hoy.</p>
     </div>
-    <button class="btn btn-secondary"><i data-icon="download" data-size="18"></i><span>Descargar extracto</span></button>
+    <button class="btn btn-secondary" id="btn-extracto"><i data-icon="download" data-size="18"></i><span>Descargar extracto</span></button>
   </div>
   <section class="balance-hero">
     <div>

@@ -1,0 +1,8 @@
+/* MOVA — css/extracto.css (ventana para elegir el mes del extracto) */
+.extracto-fondo { position: fixed; inset: 0; z-index: 60; background: rgba(13,51,59,.45); display: grid; place-items: center; padding: 16px; }
+.extracto-modal { width: 100%; max-width: 420px; background: white; border-radius: 16px; padding: 26px; box-shadow: var(--shadow); }
+.extracto-modal h2 { font: 700 20px "Manrope", sans-serif; margin: 0 0 6px; }
+.extracto-modal > p { margin: 0 0 18px; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
+.extracto-modal .field { display: block; margin-bottom: 18px; }
+.extracto-modal .field > span { display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.extracto-acciones { display: flex; gap: 10px; justify-content: flex-end; }
