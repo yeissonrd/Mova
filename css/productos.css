@@ -18,3 +18,14 @@
   content: ""; position: absolute; left: 0; top: 5px; width: 12px; height: 7px;
   border-left: 2px solid #65ddc8; border-bottom: 2px solid #65ddc8; transform: rotate(-45deg);
 }
+
+/* Celular: el panel izquierdo se oculta (styles.css), así que los beneficios van bajo el selector */
+.reg-producto-movil { display: none; }
+@media (max-width: 900px) {
+  .reg-producto-movil { display: block; margin: 0 0 18px; padding: 16px 18px; border-radius: 14px; background: var(--mint-light); border: 1px solid var(--mint); }
+  .reg-producto-movil .auth-producto-etiqueta { color: var(--teal-dark); margin-bottom: 6px; }
+  .reg-producto-movil p { margin: 0 0 10px; font: 700 15px/1.35 "Manrope", sans-serif; color: var(--ink); }
+  .reg-producto-movil ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  .reg-producto-movil li { position: relative; padding-left: 22px; font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
+  .reg-producto-movil li::before { content: ""; position: absolute; left: 0; top: 5px; width: 11px; height: 6px; border-left: 2px solid var(--teal); border-bottom: 2px solid var(--teal); transform: rotate(-45deg); }
+}

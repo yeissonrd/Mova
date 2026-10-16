@@ -1,7 +1,8 @@
 /* MOVA — js/ui/productos.js  (CORRECCIONES: descripción de productos en el registro)
    Cuando el visitante pulsa "Conocer más" en la portada, llega al registro con ese producto
    elegido y ve en el panel izquierdo los beneficios del producto. Si cambia el producto en
-   el formulario, la descripción cambia con él. */
+   el formulario, la descripción cambia con él. En celular el panel izquierdo se oculta, así que
+   los beneficios también se muestran debajo del selector de producto. */
 
 /* ===================== CLASE: CatalogoProductos ===================== */
 class CatalogoProductos {
@@ -57,8 +58,13 @@ class CatalogoProductos {
 /* ===================== PANTALLA DE REGISTRO ===================== */
 function pintarInfoProducto() {
   const select = document.getElementById("reg-producto");
-  const caja = document.getElementById("reg-producto-info");
-  if (select && caja) caja.innerHTML = CatalogoProductos.html(select.value);
+  if (!select) return;
+  const html = CatalogoProductos.html(select.value);
+  // El panel izquierdo (computador) y el bloque bajo el selector (celular) muestran lo mismo
+  ["reg-producto-info", "reg-producto-info-movil"].forEach((id) => {
+    const caja = document.getElementById(id);
+    if (caja) caja.innerHTML = html;
+  });
 }
 
 alIniciar(() => {
