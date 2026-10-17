@@ -1,6 +1,6 @@
 /* MOVA — js/ui/comun.js
-   Utilidades compartidas por todas las pantallas: íconos, formato de dinero y
-   datos de ejemplo de movimientos. Lo usan varias HU: cambios aquí se avisan al equipo. */
+   Utilidades compartidas por todas las pantallas: íconos, sesión y formato de dinero.
+   Lo usan varias HU: cambios aquí se avisan al equipo. */
 
 /* ===================== ÍCONOS ===================== */
 /* ===================== SESIÓN (HU-02) ===================== */
@@ -44,7 +44,7 @@ function renderIcons(root = document) {
   });
 }
 
-/* ===================== DATOS DE EJEMPLO ===================== */
+/* ===================== FORMATO DE DINERO ===================== */
 const formatMoney = (value) =>
   new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -52,24 +52,4 @@ const formatMoney = (value) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const MOVEMENTS = [
-  { icon: "send", title: "Transferencia recibida", meta: "Hoy · 09:42 a. m.", amount: 320000, color: "blue" },
-  { icon: "plus", title: "Consignación", meta: "12 jun · 04:18 p. m.", amount: 150000, color: "green" },
-  { icon: "card", title: "Compra · Café Pergamino", meta: "11 jun · 10:06 a. m.", amount: -28500, color: "purple" },
-  { icon: "minus", title: "Retiro en cajero", meta: "10 jun · 11:30 a. m.", amount: -200000, color: "red" },
-];
 
-/* ===================== MOVEMENT LIST (fragmento reutilizable) ===================== */
-function movementListHtml(limit) {
-  const list = typeof limit === "number" ? MOVEMENTS.slice(0, limit) : MOVEMENTS;
-  return `<div class="movement-list">${list
-    .map(
-      (m) => `
-    <div class="movement">
-      <i class="${m.color}" data-icon="${m.icon}" data-size="18"></i>
-      <div><b>${m.title}</b><small>${m.meta}</small></div>
-      <strong class="${m.amount > 0 ? "positive" : ""}">${m.amount > 0 ? "+" : "−"} ${formatMoney(Math.abs(m.amount))}</strong>
-    </div>`,
-    )
-    .join("")}</div>`;
-}
