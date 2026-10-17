@@ -1,0 +1,27 @@
+/* MOVA — css/ayuda.css (centro de ayuda: preguntas frecuentes y tickets) */
+.help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; align-items: start; }
+.help-grid > div { display: flex; flex-direction: column; gap: 17px; }
+.help-grid .form-panel { margin-bottom: 0; }
+.help-grid .field { display: block; margin-bottom: 14px; }
+.help-grid .field > span { display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.field-control textarea { width: 100%; min-width: 0; border: 0; outline: 0; resize: vertical; padding: 12px 0; color: var(--ink); background: transparent; font: inherit; }
+.field-control:has(textarea) { height: auto; align-items: flex-start; }
+.notice.error { color: #b3363f; background: #fdeff0; border: 1px solid #f3c6ca; }
+
+.faq { border-top: 1px solid #edf2f1; }
+.faq summary { cursor: pointer; padding: 14px 0; font-size: 13px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--teal-dark); font-size: 18px; line-height: 1; }
+.faq[open] summary::after { content: "−"; }
+.faq p { margin: 0 0 14px; color: var(--ink-soft); font-size: 12px; line-height: 1.6; }
+
+.ticket-lista { list-style: none; margin: 0; padding: 0; }
+.ticket-item { border-top: 1px solid #edf2f1; padding: 13px 0; display: flex; flex-direction: column; gap: 4px; }
+.ticket-cabecera { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.ticket-estado { background: var(--mint); color: var(--teal-dark); font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
+.ticket-asunto { margin: 0; font-size: 13px; }
+.ticket-item small { color: var(--ink-soft); font-size: 10px; }
+
+@media (max-width: 900px) {
+  .help-grid { grid-template-columns: 1fr; }
+}

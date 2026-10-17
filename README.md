@@ -28,7 +28,10 @@ Detalle en [`docs/ROLES.md`](docs/ROLES.md).
 ```
 index.html            Interfaz
 styles.css            Estilos
-app.js                Pantallas y eventos
+js/ui/                Interfaz, un archivo por área (ver abajo)
+                      comun.js, navegacion.js (no se edita), resumen.js (HU-03),
+                      cuentas.js (HU-04/05), tarjeta.js (HU-06), transferencias.js (HU-07),
+                      perfil.js (HU-08), admin.js (HU-01), sesion.js (HU-02)
 js/models/            Clases: Movimiento, Cuenta, CuentaAhorros, CuentaCorriente,
                       TarjetaCredito, Cliente, Administrador
 js/services/Sistema.js  Coordina todo: login, operaciones y guardado en localStorage

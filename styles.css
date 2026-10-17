@@ -91,3 +91,7 @@ footer { padding: 30px 7vw; border-top: 1px solid var(--line); display: flex; al
 .screen { display: none; }
 .screen.active { display: block; }
 .app-shell .content { display: block; }
+
+.password-toggle { border: 0; padding: 4px; display: grid; place-items: center; color: inherit; background: transparent; cursor: pointer; }
+.password-toggle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 5px; }
+.field-control input[readonly] { color: var(--ink-soft); cursor: not-allowed; }
