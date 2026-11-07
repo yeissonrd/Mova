@@ -64,9 +64,9 @@ function profileHtml() {
           <i data-icon="lock"></i>
         </div>
         <div class="form-grid">
-          <label class="field"><span>Contraseña actual</span><div class="field-control"><input id="profile-clave-actual" type="password" autocomplete="current-password" /><button class="password-toggle" type="button" data-password-toggle="profile-clave-actual" aria-label="Mostrar contraseña actual" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
-          <label class="field"><span>Nueva contraseña</span><div class="field-control"><input id="profile-clave-nueva" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" /><button class="password-toggle" type="button" data-password-toggle="profile-clave-nueva" aria-label="Mostrar nueva contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
-          <label class="field"><span>Confirmar nueva contraseña</span><div class="field-control"><input id="profile-clave-confirmacion" type="password" minlength="8" autocomplete="new-password" /><button class="password-toggle" type="button" data-password-toggle="profile-clave-confirmacion" aria-label="Mostrar confirmación de contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
+          <label class="field"><span>Contraseña actual</span><div class="field-control"><input id="profile-clave-actual" type="password" autocomplete="current-password" /><button class="password-toggle" type="button" data-password-toggle="profile-clave-actual" data-password-label="contraseña actual" aria-label="Mostrar contraseña actual" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
+          <label class="field"><span>Nueva contraseña</span><div class="field-control"><input id="profile-clave-nueva" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" /><button class="password-toggle" type="button" data-password-toggle="profile-clave-nueva" data-password-label="nueva contraseña" aria-label="Mostrar nueva contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
+          <label class="field"><span>Confirmar nueva contraseña</span><div class="field-control"><input id="profile-clave-confirmacion" type="password" minlength="8" autocomplete="new-password" /><button class="password-toggle" type="button" data-password-toggle="profile-clave-confirmacion" data-password-label="confirmación de contraseña" aria-label="Mostrar confirmación de contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
         </div>
         <button class="btn btn-secondary" id="profile-password-btn" type="button"><span>Cambiar contraseña</span></button>
       </section>
@@ -122,21 +122,7 @@ function wireProfile() {
       profileAviso(error.message, "error");
     }
   });
-  document.querySelectorAll("#client-content [data-password-toggle]").forEach((boton) => {
-    boton.addEventListener("click", () => {
-      const entrada = document.getElementById(boton.dataset.passwordToggle);
-      if (!entrada) return;
-      const mostrar = entrada.type === "password";
-      entrada.type = mostrar ? "text" : "password";
-      boton.setAttribute("aria-pressed", String(mostrar));
-      const descripcion = boton.dataset.passwordToggle === "profile-clave-actual"
-        ? "contraseña actual"
-        : boton.dataset.passwordToggle === "profile-clave-nueva"
-          ? "nueva contraseña"
-          : "confirmación de contraseña";
-      boton.setAttribute("aria-label", (mostrar ? "Ocultar " : "Mostrar ") + descripcion);
-    });
-  });
+  conectarVisibilidadContrasenas(document.getElementById("client-content"));
 }
 
 registrarPantalla("profile", profileHtml, wireProfile);

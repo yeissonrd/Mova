@@ -17,6 +17,7 @@ const ICON_PATHS = {
   user: '<circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" />',
   shield: '<path d="M12 2 4 5v6c0 5.2 3.3 9.3 8 11 4.7-1.7 8-5.8 8-11V5Z" /><path d="m9 12 2 2 4-5" />',
   eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" />',
+  "eye-off": '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" /><path d="m3 3 18 18" />',
   plus: '<path d="M12 5v14M5 12h14" />',
   minus: '<path d="M5 12h14" />',
   arrow: '<path d="M5 12h14M14 7l5 5-5 5" />',
@@ -41,6 +42,28 @@ function renderIcons(root = document) {
     const name = el.getAttribute("data-icon");
     const size = el.getAttribute("data-size") || 20;
     el.innerHTML = iconSvg(name, size);
+  });
+}
+
+// Conecta botones accesibles que muestran u ocultan su campo de contraseña.
+function conectarVisibilidadContrasenas(raiz = document) {
+  raiz.querySelectorAll("[data-password-toggle]").forEach((boton) => {
+    if (boton.dataset.passwordToggleBound === "true") return;
+    boton.dataset.passwordToggleBound = "true";
+    boton.addEventListener("click", () => {
+      const entrada = document.getElementById(boton.dataset.passwordToggle);
+      if (!entrada) return;
+      const mostrar = entrada.type === "password";
+      entrada.type = mostrar ? "text" : "password";
+      const icono = boton.querySelector("[data-icon]");
+      if (icono) {
+        icono.setAttribute("data-icon", mostrar ? "eye-off" : "eye");
+        renderIcons(boton);
+      }
+      boton.setAttribute("aria-pressed", String(mostrar));
+      const nombre = boton.dataset.passwordLabel || "contraseña";
+      boton.setAttribute("aria-label", (mostrar ? "Ocultar " : "Mostrar ") + nombre);
+    });
   });
 }
 
