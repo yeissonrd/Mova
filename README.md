@@ -21,7 +21,7 @@ Detalle en [`docs/ROLES.md`](docs/ROLES.md).
 | [`docs/UML.md`](docs/UML.md) | Diagrama UML de clases (con imagen en `docs/uml/`) |
 | [`docs/maqueta/MAQUETA.md`](docs/maqueta/MAQUETA.md) | Maqueta: las 10 pantallas de la aplicación |
 | [`docs/ROLES.md`](docs/ROLES.md) | Roles del equipo y reparto de historias |
-| [`docs/MOVA_Proyecto_Integrador.docx`](docs/MOVA_Proyecto_Integrador.docx) | Documento completo del proyecto integrador |
+
 
 ## Estructura del código
 
