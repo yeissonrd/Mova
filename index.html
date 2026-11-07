@@ -238,7 +238,6 @@
           <p>Estamos aquí para ti.</p>
           <button data-go="help">Ir al centro de ayuda</button>
         </div>
-        <button class="logout" data-go="landing"><i data-icon="logout" data-size="19"></i> <span>Cerrar sesión</span></button>
       </aside>
       <div class="app-main">
         <header class="app-header">
@@ -247,10 +246,18 @@
           </div>
           <div class="breadcrumbs">MOVA <span>/</span> <span id="client-breadcrumb-label"></span></div>
           <div class="user-tools">
-            <button class="icon-button"><i data-icon="bell" data-size="20"></i></button>
-            <div class="avatar">JG</div>
-            <div><b>Juan Gómez</b><small>Cliente MOVA</small></div>
-            <i data-icon="chevron" data-size="16"></i>
+            <button class="icon-button" type="button"><i data-icon="bell" data-size="20"></i></button>
+            <div class="client-account-wrap">
+              <button class="client-account-trigger" id="client-account-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="client-account-menu">
+                <span class="avatar">JG</span>
+                <span class="client-account-label"><b>Juan Gómez</b><small>Cliente MOVA</small></span>
+                <i data-icon="chevron" data-size="16"></i>
+              </button>
+              <div class="client-account-menu" id="client-account-menu" role="menu" hidden>
+                <button type="button" role="menuitem" data-client-account-action="profile"><i data-icon="user" data-size="18"></i><span>Perfil y seguridad</span></button>
+                <button type="button" role="menuitem" data-client-account-action="logout"><i data-icon="logout" data-size="18"></i><span>Cerrar sesión</span></button>
+              </div>
+            </div>
           </div>
         </header>
         <main class="content" id="client-content"></main>
