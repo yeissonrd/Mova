@@ -40,6 +40,7 @@ go = function (screen) {
   
 
 alIniciar(() => {
+  conectarVisibilidadContrasenas(document);
   // ---------- LOGIN ----------
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
