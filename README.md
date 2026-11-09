@@ -17,7 +17,7 @@ Detalle en [`docs/ROLES.md`](docs/ROLES.md).
 
 | Documento | Contenido |
 |---|---|
-| [`docs/HISTORIAS_DE_USUARIO.md`](docs/HISTORIAS_DE_USUARIO.md) | Historias de usuario HU-01 a HU-08 con criterios de aceptación |
+| [`docs/HISTORIAS_DE_USUARIO.md`](docs/HISTORIAS_DE_USUARIO.md) | Historias de usuario HU-01 a HU-17 con criterios de aceptación |
 | [`docs/UML.md`](docs/UML.md) | Diagrama UML de clases (con imagen en `docs/uml/`) |
 | [`docs/maqueta/MAQUETA.md`](docs/maqueta/MAQUETA.md) | Maqueta: las 10 pantallas de la aplicación |
 | [`docs/ROLES.md`](docs/ROLES.md) | Roles del equipo y reparto de historias |
