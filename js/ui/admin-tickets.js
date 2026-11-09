@@ -1,6 +1,6 @@
-/* MOVA — js/ui/admin-tickets.js  (CORRECCIONES: gestión de tickets)
+/* MOVA — js/ui/admin-tickets.js  (HU-09: gestión de tickets)
    Vista "Gestión de tickets" del panel: todos los tickets del centro de ayuda,
-   filtro por estado, búsqueda y el cuadro para cambiar el estado y responder.
+   filtro por estado, búsqueda y el cuadro para cambiar el estado, responder y eliminar.
    Los tickets los guarda CentroAyuda (ayuda.js) en localStorage ("mova.tickets"). */
 
 let filtroEstadoTickets = "Todos";
@@ -137,11 +137,44 @@ function abrirTicketAdmin(numero) {
         </label>
       </div>
       <p class="admin-modal-error" id="tk-error"></p>
-      <div class="admin-modal-botones">
+      <div class="admin-confirmar" id="tk-confirmar" hidden>
+        <p>¿Seguro que quieres eliminar el ticket <b>${escaparHtml(t.numero)}</b>? El cliente dejará de verlo y no se puede deshacer.</p>
+        <div>
+          <button type="button" class="btn btn-secondary" id="tk-no-eliminar"><span>No, conservar</span></button>
+          <button type="button" class="btn btn-danger" id="tk-si-eliminar"><span>Sí, eliminar</span></button>
+        </div>
+      </div>
+      <div class="admin-modal-botones" id="tk-botones">
+        <button type="button" class="btn btn-secondary boton-eliminar" id="tk-eliminar"><span>Eliminar ticket</span></button>
         <button type="button" class="btn btn-secondary admin-modal-cerrar"><span>Cancelar</span></button>
         <button type="submit" class="btn btn-primary"><span>Guardar cambios</span></button>
       </div>
     </form>`);
+
+  // Eliminar: primero se pide confirmación dentro del mismo cuadro.
+  const confirmar = fondo.querySelector("#tk-confirmar");
+  const botones = fondo.querySelector("#tk-botones");
+  fondo.querySelector("#tk-eliminar").addEventListener("click", () => {
+    confirmar.hidden = false;
+    botones.hidden = true;
+    fondo.querySelector("#tk-no-eliminar").focus();
+  });
+  fondo.querySelector("#tk-no-eliminar").addEventListener("click", () => {
+    confirmar.hidden = true;
+    botones.hidden = false;
+  });
+  fondo.querySelector("#tk-si-eliminar").addEventListener("click", () => {
+    try {
+      centroAyuda.eliminarTicket(numero);
+      cerrarModalAdmin();
+      pintarTicketsAdmin();
+      avisoTickets(`Ticket ${numero} eliminado.`, true);
+    } catch (err) {
+      const error = fondo.querySelector("#tk-error");
+      error.textContent = err.message;
+      error.style.display = "block";
+    }
+  });
 
   fondo.querySelector("#tk-form").addEventListener("submit", (e) => {
     e.preventDefault();

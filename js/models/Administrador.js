@@ -65,6 +65,19 @@ class Administrador {
     return this.#sistema.denegarSolicitud(id, motivo);
   }
 
+  // HU-11: ajustar el cupo de la tarjeta de un cliente.
+  ajustarCupo(userName, nuevoCupo) {
+    const cliente = this.#sistema.buscarCliente(userName);
+    if (!cliente) {
+      throw new Error("El cliente no existe.");
+    }
+    const tarjeta = cliente.buscarProductoPorCodigo("tarjeta");
+    if (!tarjeta) {
+      throw new Error("El cliente no tiene tarjeta de crédito.");
+    }
+    return this.#sistema.ajustarCupo(cliente, tarjeta.numero, nuevoCupo);
+  }
+
   // Abre un producto que el cliente todavía no tiene.
   abrirProducto(userName, codigo) {
     const cliente = this.#sistema.buscarCliente(userName);

@@ -120,6 +120,8 @@ class Ticket {
 /* ===================== CLASE: CentroAyuda ===================== */
 class CentroAyuda {
   static CLAVE_ALMACEN = "mova.tickets";
+  // Último número usado. Se guarda aparte para que un ticket borrado nunca deje repetir su número.
+  static CLAVE_CONSECUTIVO = "mova.tickets.ultimo";
 
   static PREGUNTAS = [
     {
@@ -191,7 +193,7 @@ class CentroAyuda {
   crearTicket(cliente, { categoria, producto, asunto, descripcion }) {
     Ticket.validar({ categoria, asunto, descripcion });
     const tickets = this.#leer();
-    const numero = "MOVA-" + String(tickets.length + 1).padStart(4, "0");
+    const numero = "MOVA-" + String(this.#siguienteNumero(tickets)).padStart(4, "0");
     const ticket = new Ticket({
       numero,
       identificacion: cliente.identificacion,
@@ -203,6 +205,29 @@ class CentroAyuda {
     tickets.push(ticket);
     this.#guardar(tickets);
     return ticket;
+  }
+
+  // El mayor número que exista o que ya se haya usado (aunque lo hayan borrado), más uno.
+  #ultimoRespaldo = 0;
+
+  #siguienteNumero(tickets) {
+    const mayorActual = tickets.reduce((mayor, t) => Math.max(mayor, Number(String(t.numero).replace(/\D/g, "")) || 0), 0);
+    const almacen = this.#almacen();
+    const guardado = almacen ? Number(almacen.getItem(CentroAyuda.CLAVE_CONSECUTIVO)) || 0 : this.#ultimoRespaldo;
+    const siguiente = Math.max(mayorActual, guardado) + 1;
+    if (almacen) almacen.setItem(CentroAyuda.CLAVE_CONSECUTIVO, String(siguiente));
+    else this.#ultimoRespaldo = siguiente;
+    return siguiente;
+  }
+
+  // El administrador elimina un ticket (HU-09). El número no se vuelve a usar.
+  eliminarTicket(numero) {
+    const tickets = this.#leer();
+    const restantes = tickets.filter((t) => t.numero !== numero);
+    if (restantes.length === tickets.length) {
+      throw new Error("El ticket no existe.");
+    }
+    this.#guardar(restantes);
   }
 
   // Todos los tickets (para el administrador), el más reciente primero.

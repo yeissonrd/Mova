@@ -37,6 +37,18 @@ function iconSvg(name, size = 20) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
 }
 
+// Signo, ícono, color y valor a mostrar de un movimiento:
+// ingreso (+ verde), salida (− rojo) o neutro (sin signo, azul; el ajuste de cupo muestra el cupo nuevo).
+function estiloMovimiento(m) {
+  const valor = formatMoney(Math.abs(m.monto));
+  if (m.esNeutro) {
+    const cupo = m.detalle && m.detalle.cupoNuevo;
+    return { color: "blue", icono: "card", signo: "", clase: "neutral", valor: cupo ? `Cupo ${formatMoney(cupo)}` : valor };
+  }
+  if (m.esIngreso) return { color: "green", icono: "plus", signo: "+ ", clase: "positive", valor: "+ " + valor };
+  return { color: "red", icono: "minus", signo: "− ", clase: "", valor: "− " + valor };
+}
+
 function renderIcons(root = document) {
   root.querySelectorAll("[data-icon]").forEach((el) => {
     const name = el.getAttribute("data-icon");

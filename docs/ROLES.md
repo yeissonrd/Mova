@@ -20,11 +20,21 @@ Proyecto integrador de **Desarrollo de Software** · CESDE · Docente: Jorge Alb
 
 ## Reparto de historias de usuario
 
+**Etapa 1 (terminada)**
+
 | Integrante | Historias |
 |---|---|
 | Yully | HU-01 (panel del administrador), HU-02 (registro e inicio de sesión) |
 | Yeisson | HU-03 (resumen y movimientos), HU-04 y HU-05 (cuentas de ahorros y corriente) |
 | Cristian | HU-06 (tarjeta de crédito), HU-07 (transferencias), HU-08 (perfil y seguridad) |
+
+**Etapa 2 (panel del administrador y mejoras)**
+
+| Integrante | Historias |
+|---|---|
+| Yeisson | HU-09 (gestión de tickets), HU-10 (solicitudes de apertura), HU-11 (cupo de la tarjeta) — terminadas; HU-12 (extracto en PDF por cliente), HU-17 (metas de ahorro) |
+| Cristian | HU-13 (configuración del administrador), HU-16 (bitácora de acciones) |
+| Yully | HU-14 (subadministradores), HU-15 (recuperar contraseña) |
 
 ## Flujo de trabajo en Git
 

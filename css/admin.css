@@ -87,6 +87,15 @@
 .detalle-producto li b.positivo { color: var(--teal-dark); }
 .detalle-producto > p { margin: 0; color: var(--ink-soft); }
 
+/* HU-11: ajustar cupo en el detalle y movimientos neutros (sin signo) */
+.movement strong.neutral { color: var(--ink); }
+.detalle-producto .btn-link { border: 0; background: none; color: var(--teal-dark); font-weight: 700; font-size: 12px; padding: 0; cursor: pointer; text-align: left; }
+.detalle-producto .ajustar-cupo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.detalle-producto .ajustar-cupo[hidden] { display: none; }
+.detalle-producto .ajustar-cupo .field-control { height: 36px; flex: 1; min-width: 140px; }
+.detalle-producto .ajustar-cupo .field-control input { font-weight: 700; text-align: right; }
+.detalle-producto .ajustar-cupo .btn { min-height: 36px; font-size: 12px; padding: 0 12px; }
+
 /* ---------- Solicitud de cliente nuevo ---------- */
 .solicitud-productos { display: flex; flex-direction: column; gap: 10px; }
 .solicitud-producto { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; flex-wrap: wrap; }
@@ -120,6 +129,13 @@
 .ticket-gestion { display: grid; grid-template-columns: 200px 1fr; gap: 14px; margin-top: 16px; }
 .ticket-gestion .field { margin-bottom: 0; }
 .detalle-cliente-cabecera > i.icono-ticket { background: #fdf3e2; color: #a56b12; }
+
+/* HU-09: confirmación de eliminar dentro del cuadro */
+.admin-modal-botones[hidden], .admin-confirmar[hidden] { display: none; }
+.admin-modal-botones .boton-eliminar { margin-right: auto; color: var(--red); border-color: #f3c6ca; }
+.admin-confirmar { margin-top: 18px; padding: 14px; border-radius: 12px; background: #fdeff0; border: 1px solid #f3c6ca; }
+.admin-confirmar p { margin: 0 0 12px; font-size: 13px; color: #8c2a33; line-height: 1.5; }
+.admin-confirmar > div { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 
 /* ---------- Tableta ---------- */
 @media (max-width: 900px) {
