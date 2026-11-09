@@ -87,6 +87,15 @@
 .detalle-producto li b.positivo { color: var(--teal-dark); }
 .detalle-producto > p { margin: 0; color: var(--ink-soft); }
 
+/* HU-11: ajustar cupo en el detalle y movimientos neutros (sin signo) */
+.movement strong.neutral { color: var(--ink); }
+.detalle-producto .btn-link { border: 0; background: none; color: var(--teal-dark); font-weight: 700; font-size: 12px; padding: 0; cursor: pointer; text-align: left; }
+.detalle-producto .ajustar-cupo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.detalle-producto .ajustar-cupo[hidden] { display: none; }
+.detalle-producto .ajustar-cupo .field-control { height: 36px; flex: 1; min-width: 140px; }
+.detalle-producto .ajustar-cupo .field-control input { font-weight: 700; text-align: right; }
+.detalle-producto .ajustar-cupo .btn { min-height: 36px; font-size: 12px; padding: 0 12px; }
+
 /* ---------- Solicitud de cliente nuevo ---------- */
 .solicitud-productos { display: flex; flex-direction: column; gap: 10px; }
 .solicitud-producto { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; flex-wrap: wrap; }

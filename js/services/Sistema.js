@@ -236,6 +236,23 @@ class Sistema {
     this.guardar();
   }
 
+  // HU-11: el administrador ajusta el cupo de una tarjeta que ya existe.
+  ajustarCupo(cliente, numero, nuevoCupo) {
+    const tarjeta = this.#exigirProducto(cliente, numero);
+    if (!(tarjeta instanceof TarjetaCredito)) {
+      throw new Error("El producto elegido no es una tarjeta de crédito.");
+    }
+    const cupo = Number(nuevoCupo);
+    if (!Number.isInteger(cupo) || cupo < Sistema.CUPO_MINIMO || cupo > Sistema.CUPO_MAXIMO) {
+      throw new Error(
+        `El cupo de la tarjeta debe estar entre ${Cuenta.formatear(Sistema.CUPO_MINIMO)} y ${Cuenta.formatear(Sistema.CUPO_MAXIMO)}.`
+      );
+    }
+    const movimiento = tarjeta.ajustarCupo(cupo);
+    this.guardar();
+    return movimiento;
+  }
+
   // HU-08: cambio de clave (guarda al terminar).
   cambiarClave(cliente, claveActual, claveNueva, confirmacion) {
     cliente.cambiarClave(claveActual, claveNueva, confirmacion);

@@ -78,6 +78,9 @@ class Extracto {
     if (m.tipo === "Compra en cuotas") {
       return `Compra en cuotas${d.descripcion ? " · " + d.descripcion : ""}${d.cuotas ? " (" + d.cuotas + " cuotas)" : ""}`;
     }
+    if (m.tipo === "Ajuste de cupo" && d.cupoNuevo) {
+      return `Ajuste de cupo · de ${formatMoney(d.cupoAnterior)} a ${formatMoney(d.cupoNuevo)}`;
+    }
     if (m.tipo.startsWith("Transferencia") && d.contraparte) {
       return `${m.tipo} · producto ${d.contraparte}`;
     }

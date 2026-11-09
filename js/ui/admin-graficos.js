@@ -79,7 +79,8 @@ class EstadisticasBanco {
 
   // Entradas (montos positivos) y salidas (montos negativos) de todos los productos en cada periodo.
   movimientos(escala) {
-    const todos = this.#clientes.flatMap((c) => c.productos).flatMap((p) => p.historial());
+    // Los movimientos neutros (por ejemplo, un ajuste de cupo) no son dinero que entra ni sale.
+    const todos = this.#clientes.flatMap((c) => c.productos).flatMap((p) => p.historial()).filter((m) => !m.esNeutro);
     return this.periodos(escala).map((p) => {
       const delPeriodo = todos.filter((m) => m.fecha >= p.inicio && m.fecha < p.fin);
       return {

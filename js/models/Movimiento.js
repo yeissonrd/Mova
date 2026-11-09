@@ -4,6 +4,9 @@
    Es un objeto de datos simple: no tiene reglas de negocio.
    ============================================================ */
 class Movimiento {
+  // Movimientos que no son entrada ni salida de dinero del cliente (se muestran en color neutro).
+  static TIPOS_NEUTROS = Object.freeze(["Ajuste de cupo"]);
+
   constructor(tipo, monto, saldoResultante, detalle = {}, fecha = new Date()) {
     this.tipo = tipo;                       // "Consignación", "Retiro", "Compra en cuotas"...
     this.monto = monto;                     // positivo = entra dinero, negativo = sale
@@ -12,8 +15,12 @@ class Movimiento {
     this.fecha = fecha;                     // objeto Date
   }
 
+  get esNeutro() {
+    return Movimiento.TIPOS_NEUTROS.includes(this.tipo);
+  }
+
   get esIngreso() {
-    return this.monto > 0;
+    return this.monto > 0 && !this.esNeutro;
   }
 
   // Convierte el movimiento a un objeto simple para guardarlo en localStorage.

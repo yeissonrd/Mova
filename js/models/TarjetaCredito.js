@@ -149,6 +149,24 @@ class TarjetaCredito extends Cuenta {
     return this.pagar(valor);
   }
 
+  // HU-11: el administrador sube o baja el cupo total. El disponible cambia en la misma
+  // diferencia y no puede quedar por debajo de lo que el cliente ya usó.
+  ajustarCupo(nuevoCupo) {
+    if (!Number.isInteger(nuevoCupo) || nuevoCupo <= 0) {
+      throw new Error("El cupo debe ser un valor en pesos enteros mayor a 0.");
+    }
+    if (nuevoCupo === this.#cupoTotal) {
+      throw new Error("El cupo nuevo es igual al actual.");
+    }
+    const usado = this.capitalUtilizado;
+    if (nuevoCupo < usado) {
+      throw new Error(`El cupo no puede ser menor a lo que el cliente ya usó (${Cuenta.formatear(usado)}).`);
+    }
+    const anterior = this.#cupoTotal;
+    this.#cupoTotal = nuevoCupo;
+    return this._aplicar("Ajuste de cupo", nuevoCupo - anterior, { cupoAnterior: anterior, cupoNuevo: nuevoCupo });
+  }
+
   retirar() {
     throw new Error("La tarjeta de crédito no permite retiros. Usa comprar().");
   }

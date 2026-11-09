@@ -44,9 +44,10 @@ class Notificaciones {
       .slice(0, Notificaciones.MAXIMO)
       .map(({ movimiento, producto }) => ({
         titulo: movimiento.tipo,
-        detalle: `${formatMoney(Math.abs(movimiento.monto))} · ${producto.tipo} •••• ${String(producto.numero).slice(-4)}`,
+        detalle: `${estiloMovimiento(movimiento).valor} · ${producto.tipo} •••• ${String(producto.numero).slice(-4)}`,
         fecha: movimiento.fecha,
         esIngreso: movimiento.esIngreso,
+        estilo: estiloMovimiento(movimiento),
         nueva: !lectura || movimiento.fecha > lectura,
       }));
   }
@@ -108,7 +109,7 @@ function notificacionHtml(n) {
   const fecha = n.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   return `
     <li class="notif-item${n.nueva ? " nueva" : ""}">
-      <i class="${n.esIngreso ? "green" : "red"}" data-icon="${n.esIngreso ? "plus" : "minus"}" data-size="16"></i>
+      <i class="${n.estilo.color}" data-icon="${n.estilo.icono}" data-size="16"></i>
       <div><b>${escaparNotif(n.titulo)}</b><small>${escaparNotif(n.detalle)}</small><small>${fecha}</small></div>
     </li>`;
 }

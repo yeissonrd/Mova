@@ -373,7 +373,13 @@ function productoDetalleAdminHtml(cliente, info) {
         <div><dt>Cupo total</dt><dd>${formatMoney(p.cupoTotal)}</dd></div>
         <div><dt>Disponible</dt><dd>${formatMoney(p.cupoDisponible)}</dd></div>
         <div><dt>Deuda</dt><dd>${formatMoney(p.deuda)}</dd></div>
-      </dl>`
+        <div><dt>Usado</dt><dd>${formatMoney(p.capitalUtilizado)}</dd></div>
+      </dl>
+      <button type="button" class="btn-link" data-mostrar-cupo>Ajustar cupo</button>
+      <form class="ajustar-cupo" data-ajustar-cupo hidden>
+        <span class="field-control"><input type="text" inputmode="numeric" value="${formatMoney(p.cupoTotal)}" aria-label="Cupo nuevo" /></span>
+        <button type="submit" class="btn btn-primary"><span>Guardar cupo</span></button>
+      </form>`
     : `<dl>
         <div><dt>Saldo</dt><dd class="${p.saldo < 0 ? "negativo" : ""}">${formatMoney(p.saldo)}</dd></div>
         <div><dt>Movimientos</dt><dd>${p.historial().length}</dd></div>
@@ -381,7 +387,10 @@ function productoDetalleAdminHtml(cliente, info) {
   const ultimos = p.historial().slice(0, 3);
   const lista = ultimos.length
     ? `<ul>${ultimos
-        .map((m) => `<li><span>${escaparHtml(m.tipo)}<small>${fechaCortaAdmin(m.fecha)}</small></span><b class="${m.esIngreso ? "positivo" : ""}">${m.esIngreso ? "+" : "−"} ${formatMoney(Math.abs(m.monto))}</b></li>`)
+        .map((m) => {
+          const e = estiloMovimiento(m);
+          return `<li><span>${escaparHtml(m.tipo)}<small>${fechaCortaAdmin(m.fecha)}</small></span><b class="${m.esIngreso ? "positivo" : ""}">${e.valor}</b></li>`;
+        })
         .join("")}</ul>`
     : `<p>Sin movimientos todavía.</p>`;
   return `
@@ -430,6 +439,30 @@ function abrirDetalleClienteAdmin(userName) {
     alternarBloqueoAdmin(userName);
     abrirDetalleClienteAdmin(userName);
   });
+  // HU-11: ajustar el cupo de la tarjeta desde el detalle.
+  const mostrarCupo = fondo.querySelector("[data-mostrar-cupo]");
+  const formCupo = fondo.querySelector("[data-ajustar-cupo]");
+  if (mostrarCupo && formCupo) {
+    mostrarCupo.addEventListener("click", () => {
+      formCupo.hidden = !formCupo.hidden;
+      if (!formCupo.hidden) formCupo.querySelector("input").select();
+    });
+    formCupo.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const error = document.getElementById("det-error");
+      error.style.display = "none";
+      try {
+        const movimiento = adminActual.ajustarCupo(userName, leerCupoAdmin(formCupo.querySelector("input").value));
+        pintarPanelAdmin();
+        abrirDetalleClienteAdmin(userName);
+        avisoAdmin(`Cupo de ${cliente.nombre} ajustado de ${formatMoney(movimiento.detalle.cupoAnterior)} a ${formatMoney(movimiento.detalle.cupoNuevo)}.`, true);
+      } catch (err) {
+        error.textContent = err.message;
+        error.style.display = "block";
+      }
+    });
+  }
+
   fondo.querySelectorAll("[data-abrir-producto]").forEach((btn) => {
     btn.addEventListener("click", () => {
       try {
