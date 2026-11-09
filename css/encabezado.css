@@ -1,4 +1,4 @@
-/* MOVA — css/encabezado.css (campana de notificaciones y enlace al perfil) */
+/* MOVA — css/encabezado.css (notificaciones y menú de cuenta) */
 .user-tools { position: relative; }
 .user-tools-enlace > .avatar,
 .user-tools-enlace > div:not(.avatar),
@@ -30,3 +30,20 @@
 .notif-item > div { display: flex; flex-direction: column; gap: 2px; }
 .notif-item b { font-size: 12px; }
 .notif-item small { font-size: 10px; color: var(--ink-soft); }
+
+
+.client-account-wrap { position: relative; display: block !important; }
+.client-account-trigger { display: flex; align-items: center; gap: 10px; border: 0; border-radius: 11px; padding: 5px 8px 5px 5px; color: var(--ink); background: transparent; text-align: left; cursor: pointer; }
+.client-account-trigger:hover, .client-account-trigger[aria-expanded="true"] { background: var(--canvas); }
+.client-account-label { display: flex; flex-direction: column; }
+.client-account-trigger > i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: var(--ink-soft); transition: transform .18s ease; }
+.client-account-trigger[aria-expanded="true"] > i { transform: rotate(90deg); }
+.client-account-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 45; min-width: 220px; padding: 6px; background: white; border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); }
+.client-account-menu[hidden] { display: none; }
+.client-account-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 0; border-radius: 9px; color: var(--ink); background: transparent; text-align: left; font: inherit; font-size: 12px; cursor: pointer; }
+.client-account-menu button:hover { background: var(--canvas); color: var(--teal-dark); }
+.client-account-menu button[data-client-account-action="logout"] { margin-top: 4px; border-top: 1px solid var(--line); border-top-left-radius: 0; border-top-right-radius: 0; padding-top: 13px; color: var(--red); }
+@media (max-width: 620px) {
+  .client-account-label { display: none; }
+  .client-account-menu { top: calc(100% + 8px); min-width: 205px; }
+}

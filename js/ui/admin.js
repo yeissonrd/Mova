@@ -1,5 +1,10 @@
 /* MOVA — js/ui/admin.js  (HU-01: administrador gestiona clientes)
-   Panel del administrador: lista de clientes reales, búsqueda y bloqueo. */
+   Vista "Clientes" del panel: pestañas (clientes, solicitudes, bloqueados),
+   búsqueda, bloqueo, detalle con los tres productos, registrar y editar.
+   La navegación entre vistas está en admin-panel.js. */
+
+// Pestaña activa de la vista Clientes: "todos", "solicitudes" o "bloqueados".
+let pestanaClientesAdmin = "todos";
 
 // Evita que un nombre con símbolos rompa el HTML de la tabla.
 function escaparHtml(texto) {
@@ -45,31 +50,72 @@ function avisoAdmin(mensaje, ok) {
   caja.style.background = ok ? "#e6f6f1" : "#fdeeee";
 }
 
-// Métricas del panel, calculadas desde sistema.clientes.
-function pintarMetricasAdmin() {
-  const clientes = sistema.clientes;
-  const productos = clientes.reduce((suma, c) => suma + c.productos.length, 0);
-  const bloqueados = clientes.filter((c) => c.estaBloqueado()).length;
-  const numeros = document.querySelectorAll("#screen-admin .admin-metrics b");
-  const notas = document.querySelectorAll("#screen-admin .admin-metrics em");
-  if (numeros.length >= 3) {
-    numeros[0].textContent = clientes.length;
-    numeros[1].textContent = productos;
-    numeros[2].textContent = bloqueados;
-  }
-  if (notas.length >= 3) {
-    notas[0].textContent = "clientes registrados";
-    notas[1].textContent = "productos abiertos";
-    notas[2].textContent = bloqueados > 0 ? "Requieren revisión" : "Ninguno bloqueado";
-  }
+// Escribe un texto en un elemento por id (si existe).
+function ponerTextoAdmin(id, texto) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = texto;
 }
 
-// Tabla de clientes reales (filtrada por el buscador).
+// Métricas del Resumen, calculadas desde sistema.clientes y las solicitudes.
+function pintarMetricasAdmin() {
+  const clientes = sistema.clientes;
+  const bloqueados = clientes.filter((c) => c.estaBloqueado()).length;
+  const cuentas = clientes.flatMap((c) => c.productos);
+  const ahorros = cuentas.filter((p) => p.codigo === "ahorros");
+  const corrientes = cuentas.filter((p) => p.codigo === "corriente");
+  const sumar = (lista) => lista.reduce((suma, p) => suma + p.saldo, 0);
+  const pendientes = sistema.solicitudesPendientes.length;
+
+  ponerTextoAdmin("met-clientes", clientes.length);
+  ponerTextoAdmin("met-clientes-nota", bloqueados > 0 ? `${bloqueados} bloqueado(s)` : "Ninguno bloqueado");
+  ponerTextoAdmin("met-ahorros", formatMoney(sumar(ahorros)));
+  ponerTextoAdmin("met-ahorros-nota", `${ahorros.length} ${ahorros.length === 1 ? "cuenta" : "cuentas"}`);
+  ponerTextoAdmin("met-corriente", formatMoney(sumar(corrientes)));
+  ponerTextoAdmin("met-corriente-nota", `${corrientes.length} ${corrientes.length === 1 ? "cuenta" : "cuentas"}`);
+  ponerTextoAdmin("met-solicitudes", pendientes);
+  ponerTextoAdmin("met-solicitudes-nota", pendientes > 0 ? "Por revisar en Clientes" : "Sin pendientes");
+}
+
+// Números de cada pestaña de la vista Clientes.
+function pintarPestanasAdmin() {
+  const clientes = sistema.clientes;
+  ponerTextoAdmin("tab-cuenta-todos", clientes.length);
+  ponerTextoAdmin("tab-cuenta-solicitudes", sistema.solicitudesPendientes.length);
+  ponerTextoAdmin("tab-cuenta-bloqueados", clientes.filter((c) => c.estaBloqueado()).length);
+  document.querySelectorAll("#screen-admin [data-pestana]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.pestana === pestanaClientesAdmin);
+    btn.setAttribute("aria-selected", btn.dataset.pestana === pestanaClientesAdmin ? "true" : "false");
+  });
+}
+
+// Título, nota y columnas de la tabla según la pestaña.
+const TABLAS_ADMIN = {
+  todos: { titulo: "Clientes existentes", nota: "Consulta y administra los usuarios registrados", columnas: ["CLIENTE", "IDENTIFICACIÓN", "PRODUCTOS", "ESTADO", "ACCIONES"] },
+  bloqueados: { titulo: "Clientes bloqueados", nota: "Bloqueados por el administrador o por 3 intentos fallidos", columnas: ["CLIENTE", "IDENTIFICACIÓN", "PRODUCTOS", "ESTADO", "ACCIONES"] },
+  solicitudes: { titulo: "Solicitudes de clientes nuevos", nota: "Personas que se registraron y esperan aprobación", columnas: ["ASPIRANTE", "IDENTIFICACIÓN", "PRODUCTO ELEGIDO", "FECHA", "ACCIONES"] },
+};
+
+function pintarCabeceraTablaAdmin() {
+  const tabla = TABLAS_ADMIN[pestanaClientesAdmin];
+  ponerTextoAdmin("admin-tabla-titulo", tabla.titulo);
+  ponerTextoAdmin("admin-tabla-nota", tabla.nota);
+  const cabecera = document.getElementById("admin-tabla-cabecera");
+  if (cabecera) cabecera.innerHTML = tabla.columnas.map((c) => `<span>${c}</span>`).join("");
+}
+
+// Tabla de la pestaña activa (filtrada por el buscador).
 function pintarFilasAdmin() {
   const wrap = document.getElementById("admin-client-rows");
-  const clientes = sistema.buscarClientes(textoBuscadorAdmin());
+  pintarPestanasAdmin();
+  pintarCabeceraTablaAdmin();
+  if (pestanaClientesAdmin === "solicitudes") {
+    pintarSolicitudesAdmin(wrap, textoBuscadorAdmin()); // admin-solicitudes.js
+    return;
+  }
+  let clientes = sistema.buscarClientes(textoBuscadorAdmin());
+  if (pestanaClientesAdmin === "bloqueados") clientes = clientes.filter((c) => c.estaBloqueado());
   if (clientes.length === 0) {
-    wrap.innerHTML = `<p class="empty">No hay clientes para mostrar.</p>`;
+    wrap.innerHTML = `<p class="empty">${pestanaClientesAdmin === "bloqueados" ? "No hay clientes bloqueados." : "No hay clientes para mostrar."}</p>`;
     return;
   }
   wrap.innerHTML = clientes
@@ -83,7 +129,7 @@ function pintarFilasAdmin() {
       <span>${n} ${n === 1 ? "producto" : "productos"}</span>
       <span><em class="${bloqueado ? "blocked" : "active"}">${bloqueado ? "Bloqueado" : "Activo"}</em></span>
       <div class="row-actions">
-        <button title="Ver productos"><i data-icon="eye" data-size="17"></i></button>
+        <button title="Ver detalle" data-detalle="${escaparHtml(c.userName)}"><i data-icon="eye" data-size="17"></i></button>
         <button title="Editar" data-edit="${escaparHtml(c.userName)}"><i data-icon="settings" data-size="17"></i></button>
         <button title="${bloqueado ? "Desbloquear" : "Bloquear"}" data-toggle-block="${escaparHtml(c.userName)}"><i data-icon="${bloqueado ? "check" : "lock"}" data-size="17"></i></button>
       </div>
@@ -91,7 +137,10 @@ function pintarFilasAdmin() {
     })
     .join("");
   renderIcons(wrap);
-    wrap.querySelectorAll("[data-edit]").forEach((btn) => {
+  wrap.querySelectorAll("[data-detalle]").forEach((btn) => {
+    btn.addEventListener("click", () => abrirDetalleClienteAdmin(btn.dataset.detalle));
+  });
+  wrap.querySelectorAll("[data-edit]").forEach((btn) => {
     btn.addEventListener("click", () => abrirModalEdicionAdmin(btn.dataset.edit));
   });
   wrap.querySelectorAll("[data-toggle-block]").forEach((btn) => {
@@ -120,11 +169,24 @@ function alternarBloqueoAdmin(userName) {
 function pintarPanelAdmin() {
   pintarMetricasAdmin();
   pintarFilasAdmin();
+  if (typeof pintarGraficosAdmin === "function") pintarGraficosAdmin(); // admin-graficos.js
+  if (typeof pintarTicketsAdmin === "function") pintarTicketsAdmin(); // admin-tickets.js
+}
+
+// Cambia de pestaña en la vista Clientes.
+function cambiarPestanaClientesAdmin(pestana) {
+  if (!TABLAS_ADMIN[pestana]) return;
+  pestanaClientesAdmin = pestana;
+  avisoAdmin("");
+  pintarFilasAdmin();
 }
 
 alIniciar(() => {
   const buscador = document.querySelector("#screen-admin .search input");
   if (buscador) buscador.addEventListener("input", pintarFilasAdmin);
+  document.querySelectorAll("#screen-admin [data-pestana]").forEach((btn) => {
+    btn.addEventListener("click", () => cambiarPestanaClientesAdmin(btn.dataset.pestana));
+  });
 });
 
 /* ===================== MODAL REGISTRAR CLIENTE (HU-01) ===================== */
@@ -282,5 +344,104 @@ function abrirModalEdicionAdmin(userName) {
       error.textContent = err.message;
       error.style.display = "block";
     }
+  });
+}
+/* ===================== MODAL DETALLE DEL CLIENTE ===================== */
+// Información del cliente y el detalle de sus tres productos (o el botón para abrirlo si no lo tiene).
+const PRODUCTOS_ADMIN = [
+  { codigo: "ahorros", nombre: "Cuenta de ahorros", icono: "wallet", color: "mint" },
+  { codigo: "corriente", nombre: "Cuenta corriente", icono: "card", color: "blue" },
+  { codigo: "tarjeta", nombre: "Tarjeta de crédito", icono: "card", color: "violet" },
+];
+
+function fechaCortaAdmin(fecha) {
+  return fecha.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function productoDetalleAdminHtml(cliente, info) {
+  const p = cliente.buscarProductoPorCodigo(info.codigo);
+  if (!p) {
+    return `
+      <div class="detalle-producto vacio">
+        <div class="detalle-producto-cabecera"><i class="${info.color}" data-icon="${info.icono}" data-size="18"></i><b>${info.nombre}</b></div>
+        <p>El cliente no tiene este producto.</p>
+        <button type="button" class="btn btn-secondary" data-abrir-producto="${info.codigo}"><span>Abrir ${info.nombre.toLowerCase()}</span></button>
+      </div>`;
+  }
+  const cifras = p instanceof TarjetaCredito
+    ? `<dl>
+        <div><dt>Cupo total</dt><dd>${formatMoney(p.cupoTotal)}</dd></div>
+        <div><dt>Disponible</dt><dd>${formatMoney(p.cupoDisponible)}</dd></div>
+        <div><dt>Deuda</dt><dd>${formatMoney(p.deuda)}</dd></div>
+      </dl>`
+    : `<dl>
+        <div><dt>Saldo</dt><dd class="${p.saldo < 0 ? "negativo" : ""}">${formatMoney(p.saldo)}</dd></div>
+        <div><dt>Movimientos</dt><dd>${p.historial().length}</dd></div>
+      </dl>`;
+  const ultimos = p.historial().slice(0, 3);
+  const lista = ultimos.length
+    ? `<ul>${ultimos
+        .map((m) => `<li><span>${escaparHtml(m.tipo)}<small>${fechaCortaAdmin(m.fecha)}</small></span><b class="${m.esIngreso ? "positivo" : ""}">${m.esIngreso ? "+" : "−"} ${formatMoney(Math.abs(m.monto))}</b></li>`)
+        .join("")}</ul>`
+    : `<p>Sin movimientos todavía.</p>`;
+  return `
+    <div class="detalle-producto">
+      <div class="detalle-producto-cabecera"><i class="${info.color}" data-icon="${info.icono}" data-size="18"></i><b>${info.nombre}</b><small>N.º ${escaparHtml(p.numero)}</small></div>
+      ${cifras}
+      ${lista}
+    </div>`;
+}
+
+function abrirDetalleClienteAdmin(userName) {
+  cerrarModalAdmin();
+  const cliente = sistema.buscarCliente(userName);
+  if (!cliente) {
+    avisoAdmin("El cliente no existe.", false);
+    return;
+  }
+  const bloqueado = cliente.estaBloqueado();
+  const fondo = abrirModalBaseAdmin(`
+    <div class="admin-modal-caja ancha">
+      <div class="detalle-cliente-cabecera">
+        <i>${inicialesDe(cliente.nombre)}</i>
+        <div>
+          <h2>${escaparHtml(cliente.nombre)}</h2>
+          <p>@${escaparHtml(cliente.userName)} · <em class="${bloqueado ? "blocked" : "active"}">${bloqueado ? "Bloqueado" : "Activo"}</em></p>
+        </div>
+        <button type="button" class="admin-modal-cerrar" aria-label="Cerrar">×</button>
+      </div>
+      <dl class="detalle-datos">
+        <div><dt>Identificación</dt><dd>${escaparHtml(cliente.identificacion)}</dd></div>
+        <div><dt>Celular</dt><dd>${escaparHtml(cliente.telefono)}</dd></div>
+        <div><dt>Correo</dt><dd>${escaparHtml(cliente.correo)}</dd></div>
+        <div><dt>Cliente desde</dt><dd>${fechaCortaAdmin(cliente.fechaRegistro)}</dd></div>
+        <div><dt>Saldo total</dt><dd>${formatMoney(cliente.saldoTotal)}</dd></div>
+      </dl>
+      <h3>Productos</h3>
+      <div class="detalle-productos">${PRODUCTOS_ADMIN.map((info) => productoDetalleAdminHtml(cliente, info)).join("")}</div>
+      <p class="admin-modal-error" id="det-error"></p>
+      <div class="admin-modal-botones">
+        <button type="button" class="btn btn-secondary" id="det-bloqueo"><span>${bloqueado ? "Desbloquear" : "Bloquear"}</span></button>
+        <button type="button" class="btn btn-primary" id="det-editar"><span>Editar datos</span></button>
+      </div>
+    </div>`);
+  fondo.querySelector("#det-editar").addEventListener("click", () => abrirModalEdicionAdmin(userName));
+  fondo.querySelector("#det-bloqueo").addEventListener("click", () => {
+    alternarBloqueoAdmin(userName);
+    abrirDetalleClienteAdmin(userName);
+  });
+  fondo.querySelectorAll("[data-abrir-producto]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      try {
+        adminActual.abrirProducto(userName, btn.dataset.abrirProducto);
+        pintarPanelAdmin();
+        abrirDetalleClienteAdmin(userName);
+        avisoAdmin(`Producto abierto para ${cliente.nombre}.`, true);
+      } catch (err) {
+        const error = document.getElementById("det-error");
+        error.textContent = err.message;
+        error.style.display = "block";
+      }
+    });
   });
 }

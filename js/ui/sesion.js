@@ -40,6 +40,7 @@ go = function (screen) {
   
 
 alIniciar(() => {
+  conectarVisibilidadContrasenas(document);
   // ---------- LOGIN ----------
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
@@ -79,9 +80,9 @@ alIniciar(() => {
       aviso.style.display = "none";
       try {
         adminActual = sistema.autenticarAdministrador(usuario, clave);
-        pintarPanelAdmin();
         document.getElementById("login-clave").value = "";
         go("admin");
+        mostrarVistaAdmin("resumen"); // admin-panel.js: abre el Resumen y pinta los datos
       } catch (error) {
         aviso.textContent = error.message;
         aviso.style.display = "block";
@@ -124,14 +125,20 @@ alIniciar(() => {
         let producto = document.getElementById("reg-producto").value;
         if (producto === "credito") producto = "tarjeta";
 
-        sistema.registrarCliente(datos, producto);
-        // Tras registrar, se inicia sesión automáticamente
-        clienteActual = sistema.autenticar(datos.userName, datos.clave);
-        actualizarEncabezadoCliente();
+        // El registro queda como solicitud: el administrador la aprueba desde el panel
+        const solicitud = sistema.registrarSolicitud(datos, producto);
         registerForm.reset();
-        go("dashboard");
+        registerError.textContent = `¡Solicitud ${solicitud.id} enviada! El banco revisará tus datos. Cuando la aprueben podrás iniciar sesión con tu usuario y contraseña.`;
+        registerError.style.color = "#0f6b57";
+        registerError.style.background = "#e6f6f1";
+        registerError.style.padding = "10px 14px";
+        registerError.style.borderRadius = "10px";
+        registerError.style.display = "block";
       } catch (error) {
         registerError.textContent = error.message;
+        registerError.style.color = "#d93025";
+        registerError.style.background = "none";
+        registerError.style.padding = "0";
         registerError.style.display = "block";
       }
     });

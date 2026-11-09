@@ -1,6 +1,6 @@
 /* MOVA — js/ui/encabezado.js  (CORRECCIONES: encabezado del cliente)
    - Campana de notificaciones con insignia de pendientes.
-   - La flecha ">" (y el nombre/avatar) llevan a "Perfil y seguridad".
+   - El menú de cuenta ofrece acceso a Perfil y seguridad y cierre de sesión.
    Las notificaciones salen de los movimientos reales del cliente: no se guarda nada
    nuevo en los modelos. Solo se recuerda en el navegador cuándo las vio por última vez. */
 
@@ -120,8 +120,17 @@ function cerrarPanelNotificaciones() {
   if (boton) boton.setAttribute("aria-expanded", "false");
 }
 
+function cerrarMenuCuentaCliente() {
+  const menu = document.getElementById("client-account-menu");
+  const activador = document.getElementById("client-account-trigger");
+  if (!menu || !activador) return;
+  menu.hidden = true;
+  activador.setAttribute("aria-expanded", "false");
+}
+
 function abrirPanelNotificaciones() {
   if (!clienteActual) return;
+  cerrarMenuCuentaCliente();
   cerrarPanelNotificaciones();
   notificacionesActuales = new Notificaciones(clienteActual);
   const lista = notificacionesActuales.lista();
@@ -153,6 +162,47 @@ alIniciar(() => {
   boton.setAttribute("aria-haspopup", "true");
   boton.setAttribute("aria-expanded", "false");
 
+  const menuBoton = document.getElementById("client-account-trigger");
+  const menu = document.getElementById("client-account-menu");
+  if (menuBoton && menu) {
+    menuBoton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      cerrarPanelNotificaciones();
+      menu.hidden = !menu.hidden;
+      menuBoton.setAttribute("aria-expanded", String(!menu.hidden));
+      if (!menu.hidden) menu.querySelector("button")?.focus();
+    });
+
+    menu.addEventListener("keydown", (e) => {
+      const opciones = [...menu.querySelectorAll('[role="menuitem"]')];
+      const indice = opciones.indexOf(document.activeElement);
+      if (!opciones.length) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const paso = e.key === "ArrowDown" ? 1 : -1;
+        opciones[(indice + paso + opciones.length) % opciones.length].focus();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        opciones[0].focus();
+      } else if (e.key === "End") {
+        e.preventDefault();
+        opciones[opciones.length - 1].focus();
+      }
+    });
+
+    menu.addEventListener("click", (e) => {
+      const opcion = e.target.closest("[data-client-account-action]");
+      if (!opcion) return;
+      cerrarMenuCuentaCliente();
+      if (opcion.dataset.clientAccountAction === "profile") {
+        go("profile");
+      } else if (opcion.dataset.clientAccountAction === "logout") {
+        clienteActual = null;
+        go("landing");
+      }
+    });
+  }
+
   boton.addEventListener("click", (e) => {
     e.stopPropagation();
     if (panelNotificaciones()) cerrarPanelNotificaciones();
@@ -163,17 +213,15 @@ alIniciar(() => {
   document.addEventListener("click", (e) => {
     const panel = panelNotificaciones();
     if (panel && !panel.contains(e.target)) cerrarPanelNotificaciones();
+    if (menu && !herramientas.contains(e.target)) cerrarMenuCuentaCliente();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") cerrarPanelNotificaciones();
-  });
-
-  // Avatar, nombre y flecha ">" llevan a Perfil y seguridad
-  herramientas.classList.add("user-tools-enlace");
-  herramientas.addEventListener("click", (e) => {
-    if (e.target.closest(".icon-button") || e.target.closest("#panel-notificaciones")) return;
+    if (e.key !== "Escape") return;
     cerrarPanelNotificaciones();
-    go("profile");
+    if (menu && !menu.hidden) {
+      cerrarMenuCuentaCliente();
+      menuBoton?.focus();
+    }
   });
 
   // La campana se refresca cada vez que cambia el contenido (consignar, transferir, pagar...)
