@@ -25,12 +25,15 @@ function listaMovimientosHtml(items) {
   }
   return `<div class="movement-list">${items
     .map(
-      ({ m }) => `
+      ({ m }) => {
+        const e = estiloMovimiento(m);
+        return `
     <div class="movement">
-      <i class="${m.esIngreso ? "green" : "red"}" data-icon="${m.esIngreso ? "plus" : "minus"}" data-size="18"></i>
-      <div><b>${m.tipo}</b><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
-      <strong class="${m.esIngreso ? "positive" : ""}">${m.esIngreso ? "+" : "−"} ${formatMoney(Math.abs(m.monto))}</strong>
-    </div>`,
+      <i class="${e.color}" data-icon="${e.icono}" data-size="18"></i>
+      <div><b>${m.titulo}</b><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
+      <strong class="${e.clase}">${e.valor}</strong>
+    </div>`;
+      },
     )
     .join("")}</div>`;
 }
@@ -143,8 +146,8 @@ function wireMovimientos() {
     const items = movimientosDelCliente(cliente).filter(({ m, producto: p }) => {
       if (producto.value && String(p.numero) !== producto.value) return false;
       if (tipo.value === "ingresos" && !m.esIngreso) return false;
-      if (tipo.value === "egresos" && m.esIngreso) return false;
-      return !texto || m.tipo.toLowerCase().includes(texto);
+      if (tipo.value === "egresos" && (m.esIngreso || m.esNeutro)) return false;
+      return !texto || m.titulo.toLowerCase().includes(texto);
     });
     lista.innerHTML = listaMovimientosHtml(items);
     renderIcons(lista);
