@@ -16,8 +16,13 @@ class Sistema {
   // Administrador que se crea la primera vez (cámbialo si el equipo lo decide).
   static ADMIN_INICIAL = { nombre: "Administrador MOVA", userName: "admin", clave: "Admin1234" };
 
+  // Límites del cupo que el administrador puede asignar al aprobar una tarjeta.
+  static CUPO_MINIMO = 500000;
+  static CUPO_MAXIMO = 20000000;
+
   #almacen;
   #clientes = [];
+  #solicitudes = [];
   #administrador = null;
 
   constructor(almacen = Sistema.almacenPorDefecto()) {
@@ -45,25 +50,33 @@ class Sistema {
 
   // ---------- Persistencia ----------
   guardar() {
-    const estado = { version: 1, administrador: this.#administrador, clientes: this.#clientes };
+    const estado = {
+      version: 1,
+      administrador: this.#administrador,
+      clientes: this.#clientes,
+      solicitudes: this.#solicitudes,
+    };
     this.#almacen.setItem(Sistema.CLAVE_ALMACEN, JSON.stringify(estado)); // usa el toJSON() de cada clase
   }
 
   // Lee localStorage y reconstruye objetos reales (JSON.parse solo devuelve objetos simples, sin métodos).
   cargar() {
     this.#clientes = [];
+    this.#solicitudes = [];
     this.#administrador = null;
     const texto = this.#almacen.getItem(Sistema.CLAVE_ALMACEN);
     if (texto) {
       try {
         const estado = JSON.parse(texto);
         this.#clientes = (estado.clientes || []).map((datos) => Cliente.fromJSON(datos));
+        this.#solicitudes = (estado.solicitudes || []).map((datos) => Solicitud.fromJSON(datos));
         if (estado.administrador) {
           this.#administrador = new Administrador(estado.administrador, this);
         }
       } catch (error) {
         console.error("No se pudieron leer los datos guardados:", error);
         this.#clientes = [];
+        this.#solicitudes = [];
       }
     }
     if (!this.#administrador) {
@@ -75,6 +88,31 @@ class Sistema {
   // ---------- Consultas ----------
   get clientes() {
     return [...this.#clientes];
+  }
+
+  // Todas las solicitudes (pendientes, aprobadas y denegadas), la más reciente primero.
+  get solicitudes() {
+    return [...this.#solicitudes].sort((a, b) => b.fecha - a.fecha);
+  }
+
+  get solicitudesPendientes() {
+    return this.solicitudes.filter((solicitud) => solicitud.pendiente);
+  }
+
+  buscarSolicitud(id) {
+    return this.#solicitudes.find((solicitud) => solicitud.id === id) || null;
+  }
+
+  // Búsqueda libre de solicitudes pendientes (nombre, usuario, identificación o correo).
+  buscarSolicitudesPendientes(texto) {
+    const buscado = Sistema.normalizar(texto);
+    const pendientes = this.solicitudesPendientes;
+    if (!buscado) return pendientes;
+    return pendientes.filter((solicitud) =>
+      [solicitud.nombre, solicitud.userName, solicitud.identificacion, solicitud.correo].some((campo) =>
+        Sistema.normalizar(campo).includes(buscado)
+      )
+    );
   }
 
   get administrador() {
@@ -119,6 +157,49 @@ class Sistema {
     this.#clientes.push(cliente);
     this.guardar();
     return cliente;
+  }
+
+  // ---------- Solicitudes de clientes nuevos ----------
+  // El registro desde la página crea una solicitud pendiente, no un cliente.
+  registrarSolicitud(datos, productoElegido = "ahorros") {
+    Cliente.validar(datos);
+    this.#validarDuplicados(datos);
+    const numero = String(this.#solicitudes.length + 1).padStart(4, "0");
+    const solicitud = new Solicitud({ ...datos, id: `SOL-${numero}`, productoElegido });
+    this.#solicitudes.push(solicitud);
+    this.guardar();
+    return solicitud;
+  }
+
+  // El administrador aprueba: se crea el cliente con los productos elegidos.
+  aprobarSolicitud(id, productos, cupoTarjeta = TarjetaCredito.CUPO_INICIAL) {
+    const solicitud = this.#exigirSolicitudPendiente(id);
+    const elegidos = Solicitud.PRODUCTOS.filter((codigo) => productos.includes(codigo));
+    if (elegidos.length === 0) {
+      throw new Error("Elige al menos un producto para aprobar la solicitud.");
+    }
+    const cupo = Number(cupoTarjeta);
+    if (elegidos.includes("tarjeta") && (!Number.isInteger(cupo) || cupo < Sistema.CUPO_MINIMO || cupo > Sistema.CUPO_MAXIMO)) {
+      throw new Error(
+        `El cupo de la tarjeta debe estar entre ${Cuenta.formatear(Sistema.CUPO_MINIMO)} y ${Cuenta.formatear(Sistema.CUPO_MAXIMO)}.`
+      );
+    }
+    const datos = solicitud.datosCliente();
+    // Se revisa otra vez por si alguien tomó el usuario o la identificación mientras tanto.
+    this.#validarDuplicados(datos, null, solicitud);
+    const cliente = new Cliente(datos);
+    elegidos.forEach((codigo) => cliente.agregarProducto(this.#crearProducto(codigo, cupo)));
+    solicitud.aprobar(elegidos, cupo);
+    this.#clientes.push(cliente);
+    this.guardar();
+    return cliente;
+  }
+
+  denegarSolicitud(id, motivo = "") {
+    const solicitud = this.#exigirSolicitudPendiente(id);
+    solicitud.denegar(motivo);
+    this.guardar();
+    return solicitud;
   }
 
   actualizarCliente(userName, cambios) {
@@ -171,6 +252,7 @@ class Sistema {
   autenticar(userName, clave) {
     const cliente = this.buscarCliente(userName);
     if (!cliente) {
+      this.#avisarEstadoSolicitud(userName, clave);
       throw new Error("El usuario o la clave no son correctos.");
     }
     if (cliente.bloqueadoPorAdmin) {
@@ -265,12 +347,42 @@ class Sistema {
   }
 
   // ---------- Internos ----------
-  #crearProducto(codigo) {
+  // La tarjeta puede abrirse con un cupo distinto al inicial (lo decide el administrador).
+  #crearProducto(codigo, cupoTarjeta = TarjetaCredito.CUPO_INICIAL) {
     const Clase = Cliente.CLASES_PRODUCTO[codigo];
     if (!Clase) {
       throw new Error("El tipo de producto no es válido.");
     }
+    if (Clase === TarjetaCredito) {
+      return new TarjetaCredito(this.#generarNumero(), cupoTarjeta);
+    }
     return new Clase(this.#generarNumero());
+  }
+
+  #exigirSolicitudPendiente(id) {
+    const solicitud = this.buscarSolicitud(id);
+    if (!solicitud) {
+      throw new Error("La solicitud no existe.");
+    }
+    if (!solicitud.pendiente) {
+      throw new Error(`La solicitud ${id} ya fue ${solicitud.estado.toLowerCase()}.`);
+    }
+    return solicitud;
+  }
+
+  // Si el usuario aún no es cliente pero tiene una solicitud (y la clave coincide), se le dice en qué va.
+  #avisarEstadoSolicitud(userName, clave) {
+    const buscado = Sistema.normalizar(userName);
+    const solicitud = this.solicitudes.find(
+      (s) => Sistema.normalizar(s.userName) === buscado && s.verificarClave(clave)
+    );
+    if (!solicitud) return;
+    if (solicitud.pendiente) {
+      throw new Error("Tu solicitud de apertura está en revisión. Podrás ingresar cuando el banco la apruebe.");
+    }
+    if (solicitud.estado === Solicitud.ESTADOS.DENEGADA) {
+      throw new Error("Tu solicitud de apertura fue denegada. Comunícate con el banco para más información.");
+    }
   }
 
   // Número de 10 dígitos que no se repite con ningún otro producto.
@@ -299,10 +411,13 @@ class Sistema {
   }
 
   // HU-01 criterio 4: userName e identificación únicos ("excepto" evita chocar consigo mismo al editar).
-  #validarDuplicados(datos, excepto = null) {
+  // También se revisan las solicitudes pendientes ("solicitudPropia" es la que se está aprobando).
+  #validarDuplicados(datos, excepto = null, solicitudPropia = null) {
+    const pendientes = this.#solicitudes.filter((s) => s.pendiente && s !== solicitudPropia);
     if (datos.userName !== undefined) {
+      const usuario = Sistema.normalizar(datos.userName);
       const otro = this.buscarCliente(datos.userName);
-      if (otro && otro !== excepto) {
+      if ((otro && otro !== excepto) || pendientes.some((s) => Sistema.normalizar(s.userName) === usuario)) {
         throw new Error("El nombre de usuario ya está en uso.");
       }
     }
@@ -311,6 +426,9 @@ class Sistema {
       const repetido = this.#clientes.find((c) => c !== excepto && Sistema.normalizar(c.identificacion) === id);
       if (repetido) {
         throw new Error("Ya existe un cliente con esa identificación.");
+      }
+      if (pendientes.some((s) => Sistema.normalizar(s.identificacion) === id)) {
+        throw new Error("Ya hay una solicitud en revisión con esa identificación.");
       }
     }
   }

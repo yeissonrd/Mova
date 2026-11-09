@@ -15,6 +15,8 @@ class Ticket {
   static ASUNTO_MAX = 80;
   static DESCRIPCION_MIN = 20;
   static DESCRIPCION_MAX = 500;
+  static ESTADOS = ["Abierto", "En revisión", "Resuelto"];
+  static RESPUESTA_MAX = 500;
 
   #numero;
   #identificacion; // del cliente que lo creó
@@ -24,8 +26,10 @@ class Ticket {
   #descripcion;
   #estado;
   #fecha;
+  #respuesta; // lo que contesta el administrador ("" si aún no contesta)
+  #fechaRespuesta;
 
-  constructor({ numero, identificacion, categoria, producto = "", asunto, descripcion, estado = "Abierto", fecha = new Date() }) {
+  constructor({ numero, identificacion, categoria, producto = "", asunto, descripcion, estado = "Abierto", fecha = new Date(), respuesta = "", fechaRespuesta = null }) {
     this.#numero = numero;
     this.#identificacion = identificacion;
     this.#categoria = categoria;
@@ -34,6 +38,8 @@ class Ticket {
     this.#descripcion = descripcion;
     this.#estado = estado;
     this.#fecha = fecha;
+    this.#respuesta = respuesta;
+    this.#fechaRespuesta = fechaRespuesta;
   }
 
   get numero() { return this.#numero; }
@@ -44,6 +50,27 @@ class Ticket {
   get descripcion() { return this.#descripcion; }
   get estado() { return this.#estado; }
   get fecha() { return this.#fecha; }
+  get respuesta() { return this.#respuesta; }
+  get fechaRespuesta() { return this.#fechaRespuesta; }
+
+  // El administrador cambia el estado y, si quiere, deja una respuesta para el cliente.
+  responder(estado, respuesta = "") {
+    if (!Ticket.ESTADOS.includes(estado)) {
+      throw new Error("Elige un estado válido para el ticket.");
+    }
+    const texto = String(respuesta || "").trim();
+    if (texto.length > Ticket.RESPUESTA_MAX) {
+      throw new Error(`La respuesta no puede superar ${Ticket.RESPUESTA_MAX} caracteres.`);
+    }
+    if (estado === "Resuelto" && !texto) {
+      throw new Error("Escribe una respuesta para el cliente antes de marcar el ticket como Resuelto.");
+    }
+    this.#estado = estado;
+    if (texto !== this.#respuesta) {
+      this.#respuesta = texto;
+      this.#fechaRespuesta = texto ? new Date() : null;
+    }
+  }
 
   // Lanza un Error con el mensaje para el usuario si los datos no sirven.
   static validar({ categoria, asunto, descripcion }) {
@@ -76,11 +103,17 @@ class Ticket {
       descripcion: this.#descripcion,
       estado: this.#estado,
       fecha: this.#fecha.toISOString(),
+      respuesta: this.#respuesta,
+      fechaRespuesta: this.#fechaRespuesta ? this.#fechaRespuesta.toISOString() : null,
     };
   }
 
   static fromJSON(datos) {
-    return new Ticket({ ...datos, fecha: new Date(datos.fecha) });
+    return new Ticket({
+      ...datos,
+      fecha: new Date(datos.fecha),
+      fechaRespuesta: datos.fechaRespuesta ? new Date(datos.fechaRespuesta) : null,
+    });
   }
 }
 
@@ -119,7 +152,7 @@ class CentroAyuda {
     },
     {
       pregunta: "¿Cuánto tarda en revisarse mi solicitud?",
-      respuesta: "Las solicitudes quedan en estado Abierto con un número de seguimiento (MOVA-0001, por ejemplo). Las ves en Mis solicitudes, en esta misma pantalla.",
+      respuesta: "Las solicitudes quedan en estado Abierto con un número de seguimiento (MOVA-0001, por ejemplo). El equipo de MOVA las pasa a En revisión y luego a Resuelto con una respuesta. Las ves en Mis solicitudes, en esta misma pantalla.",
     },
   ];
 
@@ -172,6 +205,23 @@ class CentroAyuda {
     return ticket;
   }
 
+  // Todos los tickets (para el administrador), el más reciente primero.
+  todos() {
+    return this.#leer().sort((a, b) => b.fecha - a.fecha);
+  }
+
+  // El administrador cambia el estado de un ticket y deja su respuesta.
+  responderTicket(numero, estado, respuesta) {
+    const tickets = this.#leer();
+    const ticket = tickets.find((t) => t.numero === numero);
+    if (!ticket) {
+      throw new Error("El ticket no existe.");
+    }
+    ticket.responder(estado, respuesta);
+    this.#guardar(tickets);
+    return ticket;
+  }
+
   // Solicitudes de un cliente, la más reciente primero.
   ticketsDe(cliente) {
     return this.#leer()
@@ -187,16 +237,24 @@ function ayudaEscapar(valor) {
   return String(valor ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
 
+// Clase CSS según el estado: Abierto (verde), En revisión (ámbar), Resuelto (gris).
+function ayudaClaseEstado(estado) {
+  if (estado === "En revisión") return "en-revision";
+  if (estado === "Resuelto") return "resuelto";
+  return "";
+}
+
 function ayudaTicketHtml(t) {
   const fecha = t.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
   return `
     <li class="ticket-item">
       <div class="ticket-cabecera">
         <b>${ayudaEscapar(t.numero)}</b>
-        <span class="ticket-estado">${ayudaEscapar(t.estado)}</span>
+        <span class="ticket-estado ${ayudaClaseEstado(t.estado)}">${ayudaEscapar(t.estado)}</span>
       </div>
       <p class="ticket-asunto">${ayudaEscapar(t.asunto)}</p>
       <small>${ayudaEscapar(t.categoria)}${t.producto ? " · " + ayudaEscapar(t.producto) : ""} · ${fecha}</small>
+      ${t.respuesta ? `<p class="ticket-respuesta"><b>Respuesta de MOVA:</b> ${ayudaEscapar(t.respuesta)}</p>` : ""}
     </li>`;
 }
 
