@@ -30,7 +30,7 @@ function listaMovimientosHtml(items) {
         return `
     <div class="movement">
       <i class="${e.color}" data-icon="${e.icono}" data-size="18"></i>
-      <div><b>${m.tipo}</b><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
+      <div><b>${m.titulo}</b><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
       <strong class="${e.clase}">${e.valor}</strong>
     </div>`;
       },
@@ -147,7 +147,7 @@ function wireMovimientos() {
       if (producto.value && String(p.numero) !== producto.value) return false;
       if (tipo.value === "ingresos" && !m.esIngreso) return false;
       if (tipo.value === "egresos" && (m.esIngreso || m.esNeutro)) return false;
-      return !texto || m.tipo.toLowerCase().includes(texto);
+      return !texto || m.titulo.toLowerCase().includes(texto);
     });
     lista.innerHTML = listaMovimientosHtml(items);
     renderIcons(lista);

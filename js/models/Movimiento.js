@@ -5,7 +5,11 @@
    ============================================================ */
 class Movimiento {
   // Movimientos que no son entrada ni salida de dinero del cliente (se muestran en color neutro).
-  static TIPOS_NEUTROS = Object.freeze(["Ajuste de cupo"]);
+  // El pago de la tarjeta no es un ingreso (no entra dinero) ni un gasto (es algo bueno): va neutro.
+  static TIPOS_NEUTROS = Object.freeze(["Ajuste de cupo", "Pago de tarjeta"]);
+
+  // Nombre para mostrar cuando es distinto al tipo guardado (el tipo no cambia para no romper filtros ni datos).
+  static NOMBRES = Object.freeze({ "Pago de tarjeta": "Abono a tarjeta" });
 
   constructor(tipo, monto, saldoResultante, detalle = {}, fecha = new Date()) {
     this.tipo = tipo;                       // "Consignación", "Retiro", "Compra en cuotas"...
@@ -13,6 +17,10 @@ class Movimiento {
     this.saldoResultante = saldoResultante; // saldo del producto después del movimiento
     this.detalle = detalle;                 // datos extra: cuotas, tasa, cuota mensual, contraparte...
     this.fecha = fecha;                     // objeto Date
+  }
+
+  get titulo() {
+    return Movimiento.NOMBRES[this.tipo] || this.tipo;
   }
 
   get esNeutro() {

@@ -389,7 +389,7 @@ function productoDetalleAdminHtml(cliente, info) {
     ? `<ul>${ultimos
         .map((m) => {
           const e = estiloMovimiento(m);
-          return `<li><span>${escaparHtml(m.tipo)}<small>${fechaCortaAdmin(m.fecha)}</small></span><b class="${m.esIngreso ? "positivo" : ""}">${e.valor}</b></li>`;
+          return `<li><span>${escaparHtml(m.titulo)}<small>${fechaCortaAdmin(m.fecha)}</small></span><b class="${m.esIngreso ? "positivo" : ""}">${e.valor}</b></li>`;
         })
         .join("")}</ul>`
     : `<p>Sin movimientos todavía.</p>`;

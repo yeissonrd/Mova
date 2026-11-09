@@ -84,7 +84,7 @@ class Extracto {
     if (m.tipo.startsWith("Transferencia") && d.contraparte) {
       return `${m.tipo} · producto ${d.contraparte}`;
     }
-    return m.tipo;
+    return m.titulo;
   }
 
   static #valor(monto) {

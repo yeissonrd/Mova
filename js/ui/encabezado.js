@@ -43,7 +43,7 @@ class Notificaciones {
     return this.#movimientos()
       .slice(0, Notificaciones.MAXIMO)
       .map(({ movimiento, producto }) => ({
-        titulo: movimiento.tipo,
+        titulo: movimiento.titulo,
         detalle: `${estiloMovimiento(movimiento).valor} · ${producto.tipo} •••• ${String(producto.numero).slice(-4)}`,
         fecha: movimiento.fecha,
         esIngreso: movimiento.esIngreso,
