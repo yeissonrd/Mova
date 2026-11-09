@@ -1,0 +1,147 @@
+/* MOVA — css/admin.css (panel del administrador: vistas, gráficos, solicitudes y tickets) */
+
+/* ---------- Vistas y navegación ---------- */
+.admin-vista[hidden] { display: none; }
+.admin-shell .breadcrumbs span { margin: 0 4px; }
+.admin-shell .breadcrumbs #admin-breadcrumb-label { color: var(--navy); font-weight: 700; margin: 0; }
+
+.periodo-selector { display: inline-flex; background: white; border: 1px solid var(--line); border-radius: 11px; padding: 4px; gap: 4px; }
+.periodo-selector button { border: 0; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+.periodo-selector button.active { background: var(--navy); color: white; }
+
+.resumen-metrics { grid-template-columns: repeat(4, 1fr); }
+.admin-metrics i svg { display: block; }
+
+.admin-tabs { display: flex; gap: 6px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+.admin-tabs button { border: 0; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 13px; padding: 10px 14px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; display: flex; align-items: center; gap: 7px; }
+.admin-tabs button.active { color: var(--navy); border-bottom-color: var(--teal); }
+.admin-tabs em { font-style: normal; font-size: 10px; background: var(--canvas); border-radius: 20px; padding: 2px 8px; }
+.admin-tabs button.active em { background: var(--mint); color: var(--teal-dark); }
+.admin-tabs button[data-pestana="solicitudes"] em:not(:empty) { min-width: 18px; text-align: center; }
+
+.client-row em.pendiente { color: #a56b12; background: #fdf3e2; }
+.row-actions button.revisar { width: auto; padding: 0 10px; gap: 6px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; color: var(--navy); cursor: pointer; }
+
+.admin-aviso { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; font-size: 13px; }
+.admin-aviso.ok { color: #0f6b57; background: #e6f6f1; }
+.admin-aviso.error { color: #d93025; background: #fdeeee; }
+
+/* ---------- Gráficos ---------- */
+.grafico-panel { margin-bottom: 17px; }
+.graficos-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; }
+.graficos-fila .grafico-panel { min-width: 0; }
+.grafico-caja { width: 100%; overflow: hidden; }
+.grafico-svg { display: block; }
+.grafico-svg text.eje { font: 500 11px "DM Sans", sans-serif; fill: #6b8287; }
+.grafico-svg g:hover rect[fill="transparent"] { fill: rgba(18, 63, 72, .04); }
+.grafico-leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 11px; color: var(--ink-soft); }
+.grafico-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.grafico-leyenda i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.grafico-total { text-align: right; }
+.grafico-total small { display: block; font-size: 11px; color: var(--ink-soft); }
+.grafico-total b { font: 700 22px "Manrope"; color: var(--navy); }
+
+/* ---------- Cuadros (modales) ---------- */
+.admin-modal-fondo { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; overflow: auto; }
+.admin-modal-caja { width: 100%; max-width: 620px; max-height: 92vh; overflow: auto; padding: 24px; background: #fff; border-radius: 16px; }
+.admin-modal-caja.ancha { max-width: 880px; }
+.admin-modal-caja h3 { font: 700 15px "Manrope"; margin: 18px 0 10px; }
+.admin-modal-nota { margin: -4px 0 12px; font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+.admin-modal-error { display: none; color: #d93025; margin: 10px 0 0; font-size: 13px; }
+.admin-modal-botones { display: flex; gap: 12px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+.admin-modal-cerrar { border: 0; background: transparent; font-size: 26px; line-height: 1; color: var(--ink-soft); cursor: pointer; margin-left: auto; align-self: flex-start; }
+.admin-modal-botones .admin-modal-cerrar { font-size: 14px; margin-left: 0; color: var(--navy); }
+
+.detalle-cliente-cabecera { display: flex; align-items: center; gap: 14px; }
+.detalle-cliente-cabecera > i { width: 48px; height: 48px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--mint); color: var(--teal-dark); font-style: normal; font-weight: 800; }
+.detalle-cliente-cabecera h2 { margin: 0 0 3px; font: 700 20px "Manrope"; }
+.detalle-cliente-cabecera p { margin: 0; font-size: 12px; color: var(--ink-soft); }
+.detalle-cliente-cabecera em { font-style: normal; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9px; }
+.detalle-cliente-cabecera em.active { color: var(--teal-dark); background: var(--mint); }
+.detalle-cliente-cabecera em.blocked { color: var(--red); background: #fcebed; }
+.detalle-cliente-cabecera em.pendiente { color: #a56b12; background: #fdf3e2; }
+
+.detalle-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 18px 0 0; padding: 14px; background: var(--canvas); border-radius: 12px; }
+.detalle-datos dt { font-size: 10px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; }
+.detalle-datos dd { margin: 3px 0 0; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+
+.detalle-productos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.detalle-producto { border: 1px solid var(--line); border-radius: 13px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 12px; }
+.detalle-producto.vacio { background: var(--canvas); border-style: dashed; }
+.detalle-producto.vacio p { margin: 0; color: var(--ink-soft); }
+.detalle-producto.vacio .btn { min-height: 36px; font-size: 12px; margin-top: auto; }
+.detalle-producto-cabecera { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.detalle-producto-cabecera small { width: 100%; color: var(--ink-soft); }
+.detalle-producto-cabecera i { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; }
+.detalle-producto-cabecera i.mint { background: var(--mint); color: var(--teal-dark); }
+.detalle-producto-cabecera i.blue { background: #e8efff; color: var(--blue); }
+.detalle-producto-cabecera i.violet { background: #eeeafd; color: var(--purple); }
+.detalle-producto dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.detalle-producto dt { font-size: 10px; color: var(--ink-soft); }
+.detalle-producto dd { margin: 2px 0 0; font-weight: 800; }
+.detalle-producto dd.negativo { color: var(--red); }
+.detalle-producto ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid #edf2f1; }
+.detalle-producto li { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid #edf2f1; }
+.detalle-producto li span { display: flex; flex-direction: column; }
+.detalle-producto li small { color: var(--ink-soft); font-size: 10px; }
+.detalle-producto li b.positivo { color: var(--teal-dark); }
+.detalle-producto > p { margin: 0; color: var(--ink-soft); }
+
+/* ---------- Solicitud de cliente nuevo ---------- */
+.solicitud-productos { display: flex; flex-direction: column; gap: 10px; }
+.solicitud-producto { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; flex-wrap: wrap; }
+.solicitud-producto.elegido { border-color: var(--teal); background: var(--mint-light); }
+.solicitud-producto input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--teal); }
+.solicitud-producto > span:not(.cupo) { display: flex; flex-direction: column; flex: 1; min-width: 160px; }
+.solicitud-producto b { font-size: 13px; }
+.solicitud-producto small { font-size: 11px; color: var(--ink-soft); }
+.solicitud-producto .cupo { height: 42px; width: 220px; max-width: 100%; }
+.solicitud-producto .cupo > span { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+.solicitud-producto .cupo input { font-weight: 800; text-align: right; }
+.solicitud-producto .cupo:has(input:disabled) { opacity: .5; }
+.solicitud-motivo { margin: 16px 0 0; }
+.admin-modal-caja .field-control:has(textarea) { height: auto; align-items: flex-start; }
+.admin-modal-caja .field-control textarea { width: 100%; border: 0; outline: 0; resize: vertical; padding: 12px 0; font: inherit; color: var(--ink); background: transparent; }
+
+/* ---------- Gestión de tickets ---------- */
+.tickets-metrics i { background: #fdf3e2; color: #a56b12; }
+.tickets-metrics > div:first-child i { background: var(--mint); color: var(--teal-dark); }
+.tickets-metrics > div:last-child i { background: #eef1f1; color: var(--ink-soft); }
+.tickets-filtros { display: flex; gap: 10px; flex-wrap: wrap; }
+.tickets-filtros .field-control { height: 42px; }
+.tickets-filtros .buscar { width: 250px; }
+.ticket-head, .ticket-row { display: grid; grid-template-columns: 2fr 1.4fr 1.2fr .8fr .8fr .8fr; gap: 14px; align-items: center; padding: 13px 10px; }
+.ticket-head { background: var(--canvas); color: #809391; font-size: 9px; letter-spacing: .08em; }
+.ticket-row { min-height: 62px; border-bottom: 1px solid #edf2f1; font-size: 11px; }
+.ticket-row > div:first-child, .ticket-row > span:nth-child(2) { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ticket-row small { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ticket-row em { font-style: normal; }
+.ticket-descripcion { margin: 0; padding: 12px 14px; background: var(--canvas); border-radius: 12px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+.ticket-gestion { display: grid; grid-template-columns: 200px 1fr; gap: 14px; margin-top: 16px; }
+.ticket-gestion .field { margin-bottom: 0; }
+.detalle-cliente-cabecera > i.icono-ticket { background: #fdf3e2; color: #a56b12; }
+
+/* ---------- Tableta ---------- */
+@media (max-width: 900px) {
+  .resumen-metrics { grid-template-columns: 1fr 1fr; }
+  .graficos-fila { grid-template-columns: 1fr; }
+  .detalle-productos { grid-template-columns: 1fr; }
+  .tickets-tabla { overflow-x: auto; }
+  .ticket-head, .ticket-row { min-width: 760px; }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 620px) {
+  .admin-shell .admin-mobile-nav { display: flex; }
+  .resumen-metrics { grid-template-columns: 1fr; }
+  .periodo-selector { width: 100%; }
+  .periodo-selector button { flex: 1; }
+  .admin-tabs { overflow-x: auto; }
+  .admin-tabs button { white-space: nowrap; }
+  .grafico-total { text-align: left; }
+  .tickets-tabla .panel-title { flex-direction: column; align-items: stretch; }
+  .tickets-filtros .buscar { width: auto; flex: 1; }
+  .ticket-gestion { grid-template-columns: 1fr; }
+  .admin-modal-caja { padding: 18px; }
+  .admin-modal-botones .btn { flex: 1; }
+}

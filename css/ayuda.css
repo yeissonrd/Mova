@@ -25,3 +25,8 @@
 @media (max-width: 900px) {
   .help-grid { grid-template-columns: 1fr; }
 }
+
+/* Estados del ticket que cambia el administrador y su respuesta */
+.ticket-estado.en-revision { background: #fdf3e2; color: #a56b12; }
+.ticket-estado.resuelto { background: #eef1f1; color: #557078; }
+.ticket-respuesta { margin: 6px 0 0; padding: 9px 11px; border-radius: 9px; background: var(--mint-light); font-size: 12px; line-height: 1.5; color: var(--ink); }

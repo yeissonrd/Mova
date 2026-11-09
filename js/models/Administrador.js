@@ -52,6 +52,29 @@ class Administrador {
     return this.#sistema.desbloquearCliente(userName);
   }
 
+  // Solicitudes de clientes nuevos: el Sistema valida y guarda.
+  listarSolicitudesPendientes() {
+    return this.#sistema.solicitudesPendientes;
+  }
+
+  aprobarSolicitud(id, productos, cupoTarjeta) {
+    return this.#sistema.aprobarSolicitud(id, productos, cupoTarjeta);
+  }
+
+  denegarSolicitud(id, motivo) {
+    return this.#sistema.denegarSolicitud(id, motivo);
+  }
+
+  // Abre un producto que el cliente todavía no tiene.
+  abrirProducto(userName, codigo) {
+    const cliente = this.#sistema.buscarCliente(userName);
+    if (!cliente) {
+      throw new Error("El cliente no existe.");
+    }
+    this.#sistema.abrirProducto(cliente, codigo);
+    return cliente;
+  }
+
   toJSON() {
     return { nombre: this.nombre, userName: this.userName, clave: this.#clave };
   }

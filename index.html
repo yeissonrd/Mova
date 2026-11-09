@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/ayuda.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/encabezado.css" />
+  <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
 
@@ -189,7 +190,7 @@
           </div>
           <div class="eyebrow"><span></span> Empieza hoy</div>
           <h1>Crea tu cuenta MOVA</h1>
-          <p>Completa tus datos y elige tu primer producto.</p>
+          <p>Completa tus datos y elige tu primer producto. El banco revisará tu solicitud.</p>
           <div class="form-grid">
             <label class="field"><span>Nombre completo</span><div class="field-control"><input type="text" id="reg-nombre"placeholder="Ej. Laura Gómez" /></div></label>
             <label class="field"><span>Identificación</span><div class="field-control"><input type="text" id="reg-identificacion" placeholder="Número de documento" /></div></label>
@@ -212,7 +213,7 @@
           </label>
           <div class="reg-producto-movil" id="reg-producto-info-movil" aria-live="polite"></div>
           <label class="terms"><input type="checkbox" id="reg-terminos" /> Acepto los términos de uso y la política de tratamiento de datos.</label>
-          <button type="submit" class="btn btn-primary full"><span>Crear mi cuenta</span></button>
+          <button type="submit" class="btn btn-primary full"><span>Enviar solicitud</span></button>
           <p class="auth-switch">¿Ya tienes una cuenta? <button type="button" data-go="login">Ingresa</button></p>
         </form>
       </section>
@@ -279,9 +280,9 @@
         <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
         <span class="admin-badge">ADMINISTRACIÓN</span>
         <nav>
-          <button class="active"><i data-icon="home" data-size="20"></i> <span>Resumen</span></button>
-          <button><i data-icon="users" data-size="20"></i> <span>Clientes</span></button>
-          <button><i data-icon="wallet" data-size="20"></i> <span>Productos</span></button>
+          <button class="active" data-admin-vista="resumen"><i data-icon="home" data-size="20"></i> <span>Resumen</span></button>
+          <button data-admin-vista="clientes"><i data-icon="users" data-size="20"></i> <span>Clientes</span></button>
+          <button data-admin-vista="tickets"><i data-icon="ticket" data-size="20"></i> <span>Gestión de tickets</span></button>
           <button><i data-icon="settings" data-size="20"></i> <span>Configuración</span></button>
         </nav>
         <button class="logout" data-go="landing"><i data-icon="logout" data-size="20"></i> <span>Cerrar sesión</span></button>
@@ -291,51 +292,98 @@
           <div class="mobile-brand">
             <div class="logo" aria-label="MOVA"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M3 26 13 7l7 12L27 6l10 20h-8l-3-6-6 10-7-11-4 7Z" /></svg><span>MOVA</span></div>
           </div>
-          <div class="breadcrumbs">Panel administrativo</div>
+          <div class="breadcrumbs">Panel administrativo <span>/</span> <span id="admin-breadcrumb-label">Resumen</span></div>
           <div class="user-tools">
             <div class="avatar">AM</div>
             <div><b>Admin MOVA</b><small>Administrador</small></div>
           </div>
         </header>
         <main class="content">
-          <div class="page-heading">
-            <div>
-              <div class="eyebrow"><span></span> Gestión MOVA</div>
-              <h1>Panel administrativo</h1>
-              <p>Supervisa clientes, productos y actividad del sistema.</p>
+          <!-- ===== Vista: Resumen (métricas y gráficos del banco) ===== -->
+          <div class="admin-vista" data-vista="resumen">
+            <div class="page-heading">
+              <div>
+                <div class="eyebrow"><span></span> Gestión MOVA</div>
+                <h1>Panel administrativo</h1>
+                <p>Así se mueve el banco: clientes, dinero en cuentas y movimientos.</p>
+              </div>
+              <div class="periodo-selector" role="group" aria-label="Agrupar gráficos por">
+                <button type="button" data-periodo="dia">Día</button>
+                <button type="button" data-periodo="mes" class="active">Mes</button>
+                <button type="button" data-periodo="anio">Año</button>
+              </div>
             </div>
-            <button class="btn btn-primary"><i data-icon="plus" data-size="18"></i><span>Registrar cliente</span></button>
+            <div class="admin-metrics resumen-metrics">
+              <div>
+                <i data-icon="users" data-size="20"></i>
+                <span><small>Clientes registrados</small><b id="met-clientes">0</b><em id="met-clientes-nota">clientes activos</em></span>
+              </div>
+              <div>
+                <i data-icon="wallet" data-size="20"></i>
+                <span><small>Total en cuentas de ahorro</small><b id="met-ahorros">$ 0</b><em id="met-ahorros-nota">0 cuentas</em></span>
+              </div>
+              <div>
+                <i data-icon="card" data-size="20"></i>
+                <span><small>Total en cuentas corrientes</small><b id="met-corriente">$ 0</b><em id="met-corriente-nota">0 cuentas</em></span>
+              </div>
+              <div>
+                <i data-icon="user" data-size="20"></i>
+                <span><small>Solicitudes pendientes</small><b id="met-solicitudes">0</b><em id="met-solicitudes-nota">Sin pendientes</em></span>
+              </div>
+            </div>
+            <div id="admin-graficos"></div>
           </div>
-          <div class="admin-metrics">
-            <div>
-              <i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4" /><path d="M2 21a7 7 0 0 1 14 0M16 5a4 4 0 0 1 0 7M18 15a6 6 0 0 1 4 6" /></svg></i>
-              <span><small>Clientes totales</small><b>1.248</b><em>+ 12 este mes</em></span>
+
+          <!-- ===== Vista: Clientes (clientes, solicitudes y bloqueados) ===== -->
+          <div class="admin-vista" data-vista="clientes" hidden>
+            <div class="page-heading">
+              <div>
+                <div class="eyebrow"><span></span> Gestión MOVA</div>
+                <h1>Gestión de clientes</h1>
+                <p>Clientes existentes, solicitudes de clientes nuevos y clientes bloqueados.</p>
+              </div>
+              <button class="btn btn-primary"><i data-icon="plus" data-size="18"></i><span>Registrar cliente</span></button>
             </div>
-            <div>
-              <i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3v-11a3 3 0 0 1 3-3h12v4" /><path d="M15 12h5M16.5 12h.1" /></svg></i>
-              <span><small>Productos activos</small><b>2.864</b><em>98,4 % activos</em></span>
+            <div class="admin-tabs" role="tablist">
+              <button type="button" role="tab" data-pestana="todos" class="active">Clientes <em id="tab-cuenta-todos">0</em></button>
+              <button type="button" role="tab" data-pestana="solicitudes">Solicitudes <em id="tab-cuenta-solicitudes">0</em></button>
+              <button type="button" role="tab" data-pestana="bloqueados">Bloqueados <em id="tab-cuenta-bloqueados">0</em></button>
             </div>
-            <div>
-              <i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 5v6c0 5.2 3.3 9.3 8 11 4.7-1.7 8-5.8 8-11V5Z" /><path d="m9 12 2 2 4-5" /></svg></i>
-              <span><small>Clientes bloqueados</small><b>18</b><em>Requieren revisión</em></span>
-            </div>
+            <section class="panel client-table">
+              <div class="panel-title">
+                <div><h2 id="admin-tabla-titulo">Clientes existentes</h2><p id="admin-tabla-nota">Consulta y administra los usuarios registrados</p></div>
+                <div class="search"><i data-icon="search" data-size="18"></i><input placeholder="Buscar cliente..." /></div>
+              </div>
+              <div class="table-head" id="admin-tabla-cabecera">
+                <span>CLIENTE</span>
+                <span>IDENTIFICACIÓN</span>
+                <span>PRODUCTOS</span>
+                <span>ESTADO</span>
+                <span>ACCIONES</span>
+              </div>
+              <div id="admin-client-rows"></div>
+            </section>
           </div>
-          <section class="panel client-table">
-            <div class="panel-title">
-              <div><h2>Gestión de clientes</h2><p>Consulta y administra los usuarios registrados</p></div>
-              <div class="search"><i data-icon="search" data-size="18"></i><input placeholder="Buscar cliente..." /></div>
+
+          <!-- ===== Vista: Gestión de tickets (centro de ayuda) ===== -->
+          <div class="admin-vista" data-vista="tickets" hidden>
+            <div class="page-heading">
+              <div>
+                <div class="eyebrow"><span></span> Gestión MOVA</div>
+                <h1>Gestión de tickets</h1>
+                <p>Solicitudes que los clientes envían desde el centro de ayuda.</p>
+              </div>
             </div>
-            <div class="table-head">
-              <span>CLIENTE</span>
-              <span>IDENTIFICACIÓN</span>
-              <span>PRODUCTOS</span>
-              <span>ESTADO</span>
-              <span>ACCIONES</span>
-            </div>
-            <div id="admin-client-rows"></div>
-          </section>
+            <div id="admin-tickets"></div>
+          </div>
         </main>
       </div>
+      <nav class="mobile-nav admin-mobile-nav" aria-label="Menú del administrador">
+        <button class="active" data-admin-vista="resumen"><i data-icon="home" data-size="20"></i><span>Resumen</span></button>
+        <button data-admin-vista="clientes"><i data-icon="users" data-size="20"></i><span>Clientes</span></button>
+        <button data-admin-vista="tickets"><i data-icon="ticket" data-size="20"></i><span>Tickets</span></button>
+        <button class="admin-salir-movil" data-go="landing"><i data-icon="logout" data-size="20"></i><span>Salir</span></button>
+      </nav>
     </div>
   </section>
 
@@ -346,6 +394,7 @@
   <script src="js/models/CuentaCorriente.js" defer></script>
   <script src="js/models/TarjetaCredito.js" defer></script>
   <script src="js/models/Cliente.js" defer></script>
+  <script src="js/models/Solicitud.js" defer></script>
   <script src="js/models/Administrador.js" defer></script>
   <script src="js/services/Sistema.js" defer></script>
   <!-- Interfaz -->
@@ -360,6 +409,10 @@
   <script src="js/ui/transferencias.js" defer></script>
   <script src="js/ui/perfil.js" defer></script>
   <script src="js/ui/admin.js" defer></script>
+  <script src="js/ui/admin-panel.js" defer></script>
+  <script src="js/ui/admin-solicitudes.js" defer></script>
+  <script src="js/ui/admin-tickets.js" defer></script>
+  <script src="js/ui/admin-graficos.js" defer></script>
   <script src="js/ui/encabezado.js" defer></script>
   <script src="js/ui/sesion.js" defer></script>
 </body>
