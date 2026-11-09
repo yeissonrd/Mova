@@ -37,6 +37,7 @@ class Cliente {
   #intentosFallidos;
   #bloqueadoHasta; // Date o null (bloqueo temporal por intentos fallidos)
   #bloqueadoPorAdmin; // true si el administrador lo bloqueó
+  #debeCambiarClave; // true si entró con una clave temporal (HU-15)
   #fechaRegistro;
 
   // "datos" trae los campos del formulario; "estado" solo se usa al reconstruir desde localStorage.
@@ -54,7 +55,9 @@ class Cliente {
     this.#bloqueadoHasta = estado.bloqueadoHasta || null;
     this.#bloqueadoPorAdmin = estado.bloqueadoPorAdmin || false;
     this.#fechaRegistro = estado.fechaRegistro || new Date();
+    this.#debeCambiarClave = estado.debeCambiarClave || false;
   }
+  
 
   // ---------- Consultas ----------
   get identificacion() { return this.#datos.identificacion; }
@@ -66,6 +69,7 @@ class Cliente {
   get intentosFallidos() { return this.#intentosFallidos; }
   get bloqueadoHasta() { return this.#bloqueadoHasta; }
   get bloqueadoPorAdmin() { return this.#bloqueadoPorAdmin; }
+  get debeCambiarClave() { return this.#debeCambiarClave; }
   get productos() { return [...this.#productos]; }
 
   // Suma de los saldos de las cuentas (la tarjeta no cuenta: su "saldo" es cupo, no dinero propio).
@@ -114,6 +118,12 @@ class Cliente {
       throw new Error("La nueva clave debe ser diferente a la actual.");
     }
     this.#clave = claveNueva;
+    this.#debeCambiarClave = false;
+  }
+  // HU-15: el admin aprobó el restablecimiento. Deja una clave temporal y obliga a cambiarla.
+  restablecerClave(claveTemporal) {
+    this.#clave = claveTemporal;
+    this.#debeCambiarClave = true;
   }
 
   // HU-08: edita los datos del perfil. Valida todo antes de cambiar algo.
@@ -202,6 +212,7 @@ class Cliente {
       intentosFallidos: this.#intentosFallidos,
       bloqueadoHasta: this.#bloqueadoHasta ? this.#bloqueadoHasta.toISOString() : null,
       bloqueadoPorAdmin: this.#bloqueadoPorAdmin,
+      debeCambiarClave: this.#debeCambiarClave,
       fechaRegistro: this.#fechaRegistro.toISOString(),
       productos: this.#productos.map((producto) => producto.toJSON()),
     };
@@ -215,6 +226,7 @@ class Cliente {
       intentosFallidos: datos.intentosFallidos,
       bloqueadoHasta: datos.bloqueadoHasta ? new Date(datos.bloqueadoHasta) : null,
       bloqueadoPorAdmin: datos.bloqueadoPorAdmin,
+      debeCambiarClave: datos.debeCambiarClave,
       fechaRegistro: new Date(datos.fechaRegistro),
     });
   }
