@@ -70,14 +70,14 @@ Historias de usuario del proyecto integrador (CESDE · Desarrollo de Software). 
 
 **Como:** cliente con una Cuenta de Ahorros.
 
-**Quiero:** consignar y retirar dinero, y que se me aplique automáticamente un interés del 1.5% en cada retiro.
+**Quiero:** consignar y retirar dinero, y recibir automáticamente un rendimiento mensual del 1.5% sobre el monto retirado.
 
 **Para:** hacer crecer mis ahorros mientras uso mi cuenta con normalidad.
 
 **Criterios de aceptación:**
 
 1. El retiro no puede superar el saldo disponible.
-2. El interés del 1.5% se calcula y aplica automáticamente en cada retiro.
+2. El rendimiento mensual del 1.5% se calcula sobre el monto retirado y se abona a la cuenta como movimiento positivo.
 3. El nuevo saldo se muestra al finalizar la operación.
 
 ## HU-05 · CuentaCorriente
@@ -272,7 +272,7 @@ Historias de usuario del proyecto integrador (CESDE · Desarrollo de Software). 
 **Criterios de aceptación:**
 
 1. Se crea una meta con nombre, valor objetivo y fecha límite opcional (máximo 5 activas).
-2. Se aparta dinero de la cuenta de ahorros hacia la meta y se puede devolver, sin cobrar el 1,5 % de retiro.
+2. Se aparta dinero de la cuenta de ahorros hacia la meta y se puede devolver, sin aplicar el rendimiento asociado a un retiro.
 3. Se ve una barra de progreso, cuánto falta y el aporte mensual sugerido si hay fecha.
 4. Al llegar al objetivo la meta queda Cumplida.
 5. Cada aporte o devolución queda en Movimientos.

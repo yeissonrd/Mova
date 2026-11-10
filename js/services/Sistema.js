@@ -19,6 +19,12 @@ class Sistema {
   // Límites del cupo que el administrador puede asignar al aprobar una tarjeta.
   static CUPO_MINIMO = 500000;
   static CUPO_MAXIMO = 20000000;
+  static BANCOS_PSE = Object.freeze([
+    "Bancolombia", "Nu (NU Bank)", "Davivienda", "Banco de Bogotá", "BBVA Colombia",
+    "Banco de Occidente", "Banco Caja Social", "Banco AV Villas", "Banco Agrario",
+    "Banco Popular", "Banco Falabella", "Bancoomeva", "Banco Pichincha",
+    "GNB Sudameris", "Banco Santander", "Nequi", "DaviPlata",
+  ]);
 
   #almacen;
   #clientes = [];
@@ -341,6 +347,37 @@ class Sistema {
     const movimiento = tarjeta.pagar(valor);
     this.guardar();
     return movimiento;
+  }
+
+  pagarTarjetaDesdeCuenta(cliente, numeroCuenta, numeroTarjeta, valor) {
+    const origen = this.#exigirProducto(cliente, numeroCuenta);
+    const tarjeta = this.#exigirProducto(cliente, numeroTarjeta);
+    if (!(tarjeta instanceof TarjetaCredito)) throw new Error("El producto elegido no es una tarjeta de crédito.");
+    if (origen.codigo !== "ahorros" && origen.codigo !== "corriente") {
+      throw new Error("Selecciona una cuenta de ahorros o corriente para pagar.");
+    }
+    if (!Number.isInteger(valor) || valor <= 0) throw new Error("El valor del pago debe ser un número entero mayor a cero.");
+    if (valor > tarjeta.deuda) throw new Error("El pago no puede superar la deuda actual de la tarjeta.");
+    if (valor > origen.saldo) throw new Error("Saldo insuficiente. Elige un monto que no supere el saldo disponible de la cuenta.");
+
+    // Ambas operaciones ya están validadas antes de modificar cualquiera de los productos.
+    const movimientoTarjeta = tarjeta.pagar(valor);
+    const movimientoCuenta = origen.debitarPagoTarjeta(valor, tarjeta.numero);
+    this.guardar();
+    return { movimientoTarjeta, movimientoCuenta, saldoCuenta: origen.saldo, deudaTarjeta: tarjeta.deuda };
+  }
+
+  solicitarPagoExternoTarjeta(cliente, numeroTarjeta, valor, medio, banco = "") {
+    const tarjeta = this.#exigirProducto(cliente, numeroTarjeta);
+    if (!(tarjeta instanceof TarjetaCredito)) throw new Error("El producto elegido no es una tarjeta de crédito.");
+    if (!Number.isInteger(valor) || valor <= 0) throw new Error("El valor del pago debe ser un número entero mayor a cero.");
+    if (valor > tarjeta.deuda) throw new Error("El pago no puede superar la deuda actual de la tarjeta.");
+    if (medio !== "pse" && medio !== "corresponsal") throw new Error("El medio de pago no es válido.");
+    if (medio === "pse" && !Sistema.BANCOS_PSE.includes(banco)) throw new Error("Selecciona un banco válido para continuar.");
+
+    const referencia = `MOVA-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const codigo = medio === "corresponsal" ? String(Math.floor(10000000 + Math.random() * 90000000)) : null;
+    return { medio, banco: medio === "pse" ? banco : null, valor, referencia, codigo, correo: cliente.correo, estado: "pendiente" };
   }
 
   // ---------- Transferencias (HU-07) ----------

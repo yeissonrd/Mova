@@ -8,7 +8,7 @@
    - consignar, retirar y transferir
 
    Las clases hijas cambian reglas puntuales sobrescribiendo métodos
-   (polimorfismo): por ejemplo, CuentaAhorros.retirar() cobra el 1,5 %.
+   (polimorfismo): por ejemplo, CuentaAhorros.retirar() abona el rendimiento del 1,5 %.
    ============================================================ */
 class Cuenta {
   // Atributos privados (encapsulamiento).
@@ -82,6 +82,22 @@ class Cuenta {
       throw new Error(`El valor supera ${this.descripcionLimite()}. Máximo para retirar: ${Cuenta.formatear(limite)}.`);
     }
     return this._aplicar("Retiro", -valor);
+  }
+
+  // Débito específico para pagar una tarjeta: exige saldo real y no aplica
+  // comisión de retiro ni el sobregiro de una cuenta corriente.
+  debitarPagoTarjeta(valor, numeroTarjeta) {
+    this._validarMonto(valor);
+    if (this.codigo !== "ahorros" && this.codigo !== "corriente") {
+      throw new Error("El pago debe salir de una cuenta de ahorros o corriente.");
+    }
+    if (!Number.isInteger(valor)) {
+      throw new Error("El valor del pago debe ser un número entero de pesos.");
+    }
+    if (valor > this.saldo) {
+      throw new Error("Saldo insuficiente. Elige un monto que no supere el saldo disponible de la cuenta.");
+    }
+    return this._aplicar("Pago de tarjeta", -valor, { tarjeta: String(numeroTarjeta) });
   }
 
   // Mueve dinero de ESTA cuenta a otra. Las reglas que dependen de los clientes

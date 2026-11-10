@@ -22,7 +22,7 @@ function cuentasDelCliente(cliente) {
 function notaCuentaHtml(p) {
   const texto =
     p.codigo === "ahorros"
-      ? "Los retiros aplican un interés del 1,5 %."
+      ? "Al retirar, se abona a tu cuenta el rendimiento mensual del 1,5 % sobre el monto retirado."
       : p.saldo <= 0
         ? "No puedes retirar hasta volver a consignar (tu saldo está en 0 o negativo)."
         : `Sobregiro: puedes retirar hasta ${formatMoney(p.limiteRetiro())} (saldo + 20 %).`;
@@ -124,7 +124,7 @@ function operarCuenta(operacion, numero) {
 
     let mensaje = `${operacion === "consignar" ? "Consignaste" : "Retiraste"} ${formatMoney(valor)}.`;
     if (movimiento.detalle && movimiento.detalle.interes) {
-      mensaje += ` Se cobró un interés de ${formatMoney(movimiento.detalle.interes)}.`;
+      mensaje += ` Se abonó un interés de ${formatMoney(movimiento.detalle.interes)} a tu cuenta.`;
     }
     mensaje += ` Nuevo saldo: ${formatMoney(clienteActual.buscarProducto(numero).saldo)}.`;
 

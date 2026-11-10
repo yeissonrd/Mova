@@ -1,6 +1,6 @@
 /* ============================================================
    CuentaAhorros — hereda de Cuenta (HU-04).
-   Regla propia: cada retiro cobra un interés del 1,5 %.
+   Regla propia: al retirar se abona al cliente un interés del 1,5 %.
    ============================================================ */
 class CuentaAhorros extends Cuenta {
   static TASA_RETIRO = 0.015; // 1,5 %
@@ -18,21 +18,19 @@ class CuentaAhorros extends Cuenta {
   }
 
   // Sobrescribe retirar() de Cuenta (polimorfismo).
-  // El interés se cobra ADEMÁS del valor retirado, así que el saldo debe alcanzar para los dos.
+  // El retiro no supera el saldo disponible; el rendimiento se abona como movimiento positivo.
   retirar(valor) {
     this._validarMonto(valor);
+    if (!Number.isInteger(valor)) throw new Error("El valor debe expresarse en pesos enteros.");
     const interes = Math.round(valor * CuentaAhorros.TASA_RETIRO);
-    const total = valor + interes;
-
-    if (total > this.limiteRetiro()) {
-      throw new Error(
-        `Saldo insuficiente. El retiro más el interés del 1,5 % (${Cuenta.formatear(interes)}) suma ` +
-          `${Cuenta.formatear(total)} y tu saldo es ${Cuenta.formatear(this.saldo)}.`
-      );
+    if (valor > this.saldo) {
+      throw new Error(`Saldo insuficiente. Puedes retirar hasta ${Cuenta.formatear(this.saldo)}.`);
     }
 
     const retiro = this._aplicar("Retiro", -valor, { interes });
-    this._aplicar("Interés por retiro (1,5 %)", -interes, { tasa: CuentaAhorros.TASA_RETIRO, base: valor });
+    if (interes > 0) {
+      this._aplicar("Interés abonado (1,5 %)", interes, { tasa: CuentaAhorros.TASA_RETIRO, base: valor });
+    }
     return retiro;
   }
 
