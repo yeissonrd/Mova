@@ -4,6 +4,8 @@
    que valida y guarda. Así hay UN solo lugar con las reglas.
    ============================================================ */
 class Administrador {
+  static LARGO_MINIMO_CLAVE = 8;
+
   #clave;
   #sistema;
 
@@ -16,6 +18,23 @@ class Administrador {
 
   verificarClave(clave) {
     return this.#clave === clave;
+  }
+
+  // HU-13: el administrador cambia su clave validando la actual y su confirmación.
+  cambiarClave(claveActual, claveNueva, confirmacion) {
+    if (!this.verificarClave(claveActual)) {
+      throw new Error("La clave actual no es correcta.");
+    }
+    if (typeof claveNueva !== "string" || claveNueva.length < Administrador.LARGO_MINIMO_CLAVE) {
+      throw new Error(`La nueva clave debe tener mínimo ${Administrador.LARGO_MINIMO_CLAVE} caracteres.`);
+    }
+    if (claveNueva !== confirmacion) {
+      throw new Error("La nueva clave y su confirmación no coinciden.");
+    }
+    if (claveNueva === claveActual) {
+      throw new Error("La nueva clave debe ser diferente a la actual.");
+    }
+    this.#clave = claveNueva;
   }
 
   // HU-01 criterio 1 y 4: registrar (el Sistema rechaza userName duplicado).
