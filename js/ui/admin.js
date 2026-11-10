@@ -81,6 +81,7 @@ function pintarPestanasAdmin() {
   const clientes = sistema.clientes;
   ponerTextoAdmin("tab-cuenta-todos", clientes.length);
   ponerTextoAdmin("tab-cuenta-solicitudes", sistema.solicitudesPendientes.length);
+  ponerTextoAdmin("tab-cuenta-claves", sistema.restablecimientosPendientes.length);
   ponerTextoAdmin("tab-cuenta-bloqueados", clientes.filter((c) => c.estaBloqueado()).length);
   document.querySelectorAll("#screen-admin [data-pestana]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.pestana === pestanaClientesAdmin);
@@ -93,6 +94,7 @@ const TABLAS_ADMIN = {
   todos: { titulo: "Clientes existentes", nota: "Consulta y administra los usuarios registrados", columnas: ["CLIENTE", "IDENTIFICACIÓN", "PRODUCTOS", "ESTADO", "ACCIONES"] },
   bloqueados: { titulo: "Clientes bloqueados", nota: "Bloqueados por el administrador o por 3 intentos fallidos", columnas: ["CLIENTE", "IDENTIFICACIÓN", "PRODUCTOS", "ESTADO", "ACCIONES"] },
   solicitudes: { titulo: "Solicitudes de clientes nuevos", nota: "Personas que se registraron y esperan aprobación", columnas: ["ASPIRANTE", "IDENTIFICACIÓN", "PRODUCTO ELEGIDO", "FECHA", "ACCIONES"] },
+  claves: { titulo: "Recuperar contraseña", nota: "Clientes que olvidaron su clave y esperan una clave temporal", columnas: ["CLIENTE", "IDENTIFICACIÓN", "USUARIO", "FECHA", "ACCIONES"] },
 };
 
 function pintarCabeceraTablaAdmin() {
@@ -110,6 +112,10 @@ function pintarFilasAdmin() {
   pintarCabeceraTablaAdmin();
   if (pestanaClientesAdmin === "solicitudes") {
     pintarSolicitudesAdmin(wrap, textoBuscadorAdmin()); // admin-solicitudes.js
+    return;
+  }
+    if (pestanaClientesAdmin === "claves") {
+    pintarRestablecimientosAdmin(wrap, textoBuscadorAdmin()); // admin-claves.js
     return;
   }
   let clientes = sistema.buscarClientes(textoBuscadorAdmin());
