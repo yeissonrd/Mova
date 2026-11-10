@@ -87,6 +87,18 @@ class Administrador {
     this.#sistema.abrirProducto(cliente, codigo);
     return cliente;
   }
+    // HU-15: restablecer la clave de un cliente que la olvidó (el Sistema valida y guarda).
+  listarRestablecimientosPendientes() {
+    return this.#sistema.restablecimientosPendientes;
+  }
+
+  aprobarRestablecimiento(id) {
+    return this.#sistema.aprobarRestablecimiento(id);
+  }
+
+  denegarRestablecimiento(id) {
+    return this.#sistema.denegarRestablecimiento(id);
+  }
 
   toJSON() {
     return { nombre: this.nombre, userName: this.userName, clave: this.#clave };
