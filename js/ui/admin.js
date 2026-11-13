@@ -436,10 +436,13 @@ function abrirDetalleClienteAdmin(userName) {
       <div class="detalle-productos">${PRODUCTOS_ADMIN.map((info) => productoDetalleAdminHtml(cliente, info)).join("")}</div>
       <p class="admin-modal-error" id="det-error"></p>
       <div class="admin-modal-botones">
+        <button type="button" class="btn btn-secondary boton-extracto" id="det-extracto"><i data-icon="download" data-size="17"></i><span>Descargar extracto</span></button>
         <button type="button" class="btn btn-secondary" id="det-bloqueo"><span>${bloqueado ? "Desbloquear" : "Bloquear"}</span></button>
         <button type="button" class="btn btn-primary" id="det-editar"><span>Editar datos</span></button>
       </div>
     </div>`);
+  // HU-12: el mismo extracto en PDF que descarga el cliente (extracto.js), con opción de todo el historial.
+  fondo.querySelector("#det-extracto").addEventListener("click", () => abrirVentanaExtracto(cliente, { conHistorial: true }));
   fondo.querySelector("#det-editar").addEventListener("click", () => abrirModalEdicionAdmin(userName));
   fondo.querySelector("#det-bloqueo").addEventListener("click", () => {
     alternarBloqueoAdmin(userName);

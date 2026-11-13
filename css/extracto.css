@@ -6,3 +6,7 @@
 .extracto-modal .field { display: block; margin-bottom: 18px; }
 .extracto-modal .field > span { display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
 .extracto-acciones { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* HU-12: desde el panel del admin la ventana se abre encima del detalle del cliente */
+.extracto-fondo { z-index: 1100; }
+.admin-modal-botones .boton-extracto { margin-right: auto; display: inline-flex; align-items: center; gap: 7px; }
