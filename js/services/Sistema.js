@@ -318,6 +318,15 @@ class Sistema {
     this.guardar();
   }
 
+  // HU-13: actualiza la clave del administrador y persiste el administrador en localStorage.
+  cambiarClaveAdministrador(claveActual, claveNueva, confirmacion) {
+    if (!this.#administrador) {
+      throw new Error("No se encontró la cuenta de administrador.");
+    }
+    this.#administrador.cambiarClave(claveActual, claveNueva, confirmacion);
+    this.guardar();
+  }
+
   // HU-08: edición de perfil por parte del propio cliente.
   actualizarPerfil(cliente, cambios) {
     return this.actualizarCliente(cliente.userName, cambios);

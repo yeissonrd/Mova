@@ -283,7 +283,7 @@
           <button class="active" data-admin-vista="resumen"><i data-icon="home" data-size="20"></i> <span>Resumen</span></button>
           <button data-admin-vista="clientes"><i data-icon="users" data-size="20"></i> <span>Clientes</span></button>
           <button data-admin-vista="tickets"><i data-icon="ticket" data-size="20"></i> <span>Gestión de tickets</span></button>
-          <button><i data-icon="settings" data-size="20"></i> <span>Configuración</span></button>
+          <button type="button" data-admin-vista="configuracion"><i data-icon="settings" data-size="20"></i> <span>Configuración</span></button>
         </nav>
         <button class="logout" data-go="landing"><i data-icon="logout" data-size="20"></i> <span>Cerrar sesión</span></button>
       </aside>
@@ -377,12 +377,37 @@
             </div>
             <div id="admin-tickets"></div>
           </div>
+
+          <!-- ===== Vista: Configuración de cuenta del administrador (HU-13) ===== -->
+          <div class="admin-vista" data-vista="configuracion" hidden>
+            <div class="page-heading">
+              <div>
+                <div class="eyebrow"><span></span> Seguridad de la cuenta</div>
+                <h1>Configuración</h1>
+                <p>Actualiza la contraseña de tu cuenta administrativa.</p>
+              </div>
+            </div>
+            <section class="panel form-panel admin-config-panel">
+              <div class="panel-title">
+                <div><h2>Cambiar contraseña</h2><p>Confirma tu contraseña actual para guardar una nueva.</p></div>
+                <i data-icon="lock" data-size="20" aria-hidden="true"></i>
+              </div>
+              <form id="admin-config-form">
+                <label class="field" for="admin-clave-actual"><span>Contraseña actual</span><div class="field-control"><i data-icon="lock" data-size="18"></i><input id="admin-clave-actual" name="actual" type="password" required autocomplete="current-password" /><button class="password-toggle" type="button" data-password-toggle="admin-clave-actual" data-password-label="contraseña actual" aria-label="Mostrar contraseña actual" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
+                <label class="field" for="admin-clave-nueva"><span>Nueva contraseña (mínimo 8 caracteres)</span><div class="field-control"><i data-icon="lock" data-size="18"></i><input id="admin-clave-nueva" name="nueva" type="password" minlength="8" required autocomplete="new-password" /><button class="password-toggle" type="button" data-password-toggle="admin-clave-nueva" data-password-label="nueva contraseña" aria-label="Mostrar nueva contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
+                <label class="field" for="admin-clave-confirmacion"><span>Confirmar nueva contraseña</span><div class="field-control"><i data-icon="lock" data-size="18"></i><input id="admin-clave-confirmacion" name="confirmacion" type="password" minlength="8" required autocomplete="new-password" /><button class="password-toggle" type="button" data-password-toggle="admin-clave-confirmacion" data-password-label="confirmación de contraseña" aria-label="Mostrar confirmación de contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
+                <p id="admin-config-notice" class="admin-config-notice" role="status" aria-live="polite" hidden></p>
+                <button class="btn btn-primary" type="submit"><span>Guardar nueva contraseña</span></button>
+              </form>
+            </section>
+          </div>
         </main>
       </div>
       <nav class="mobile-nav admin-mobile-nav" aria-label="Menú del administrador">
         <button class="active" data-admin-vista="resumen"><i data-icon="home" data-size="20"></i><span>Resumen</span></button>
         <button data-admin-vista="clientes"><i data-icon="users" data-size="20"></i><span>Clientes</span></button>
         <button data-admin-vista="tickets"><i data-icon="ticket" data-size="20"></i><span>Tickets</span></button>
+        <button data-admin-vista="configuracion" aria-label="Configuración"><i data-icon="settings" data-size="20"></i><span>Configuración</span></button>
         <button class="admin-salir-movil" data-go="landing"><i data-icon="logout" data-size="20"></i><span>Salir</span></button>
       </nav>
     </div>
@@ -412,6 +437,7 @@
   <script src="js/ui/perfil.js" defer></script>
   <script src="js/ui/admin.js" defer></script>
   <script src="js/ui/admin-panel.js" defer></script>
+  <script src="js/ui/admin-config.js" defer></script>
   <script src="js/ui/recuperar-clave.js" defer></script>
   <script src="js/ui/cambio-clave-obligatorio.js" defer></script>
   <script src="js/ui/recordarme.js" defer></script>
