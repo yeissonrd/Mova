@@ -30,6 +30,7 @@ class Sistema {
   #clientes = [];
   #solicitudes = [];
   #administrador = null;
+  #restablecimientos = [];
 
   constructor(almacen = Sistema.almacenPorDefecto()) {
     this.#almacen = almacen;
@@ -61,6 +62,7 @@ class Sistema {
       administrador: this.#administrador,
       clientes: this.#clientes,
       solicitudes: this.#solicitudes,
+      restablecimientos: this.#restablecimientos,
     };
     this.#almacen.setItem(Sistema.CLAVE_ALMACEN, JSON.stringify(estado)); // usa el toJSON() de cada clase
   }
@@ -76,6 +78,7 @@ class Sistema {
         const estado = JSON.parse(texto);
         this.#clientes = (estado.clientes || []).map((datos) => Cliente.fromJSON(datos));
         this.#solicitudes = (estado.solicitudes || []).map((datos) => Solicitud.fromJSON(datos));
+        this.#restablecimientos = (estado.restablecimientos || []).map((datos) => Restablecimiento.fromJSON(datos));
         if (estado.administrador) {
           this.#administrador = new Administrador(estado.administrador, this);
         }
@@ -119,6 +122,14 @@ class Sistema {
         Sistema.normalizar(campo).includes(buscado)
       )
     );
+  }
+  // HU-15: solicitudes de restablecimiento de clave (la más reciente primero).
+  get restablecimientos() {
+    return [...this.#restablecimientos].sort((a, b) => b.fecha - a.fecha);
+  }
+
+  get restablecimientosPendientes() {
+    return this.restablecimientos.filter((restablecimiento) => restablecimiento.pendiente);
   }
 
   get administrador() {
@@ -207,6 +218,54 @@ class Sistema {
     this.guardar();
     return solicitud;
   }
+    // ---------- Recuperar contraseña (HU-15) ----------
+  // El cliente olvidó su clave: usuario, identificación y correo deben coincidir con un cliente.
+  solicitarRestablecimiento(userName, identificacion, correo) {
+    const cliente = this.buscarCliente(userName);
+    const coincide =
+      cliente &&
+      Sistema.normalizar(cliente.identificacion) === Sistema.normalizar(identificacion) &&
+      Sistema.normalizar(cliente.correo) === Sistema.normalizar(correo);
+    if (!coincide) {
+      throw new Error("Los datos no coinciden con ningún cliente.");
+    }
+    const yaPendiente = this.#restablecimientos.some(
+      (r) => r.pendiente && Sistema.normalizar(r.userName) === Sistema.normalizar(cliente.userName)
+    );
+    if (yaPendiente) {
+      throw new Error("Ya tienes una solicitud de restablecimiento en revisión.");
+    }
+    const numero = String(this.#restablecimientos.length + 1).padStart(4, "0");
+    const restablecimiento = new Restablecimiento({
+      id: `REC-${numero}`,
+      userName: cliente.userName,
+      nombre: cliente.nombre,
+      identificacion: cliente.identificacion,
+      correo: cliente.correo,
+    });
+    this.#restablecimientos.push(restablecimiento);
+    this.guardar();
+    return restablecimiento;
+  }
+
+  // El administrador aprueba: se genera una clave temporal y el cliente deberá cambiarla al entrar.
+  aprobarRestablecimiento(id) {
+    const restablecimiento = this.#exigirRestablecimientoPendiente(id);
+    const cliente = this.#exigirCliente(restablecimiento.userName);
+    const claveTemporal = this.#generarClaveTemporal();
+    cliente.restablecerClave(claveTemporal);
+    cliente.reiniciarIntentos();
+    restablecimiento.aprobar();
+    this.guardar();
+    return { cliente, claveTemporal };
+  }
+
+  denegarRestablecimiento(id) {
+    const restablecimiento = this.#exigirRestablecimientoPendiente(id);
+    restablecimiento.denegar();
+    this.guardar();
+    return restablecimiento;
+  }
 
   actualizarCliente(userName, cambios) {
     const cliente = this.#exigirCliente(userName);
@@ -262,6 +321,15 @@ class Sistema {
   // HU-08: cambio de clave (guarda al terminar).
   cambiarClave(cliente, claveActual, claveNueva, confirmacion) {
     cliente.cambiarClave(claveActual, claveNueva, confirmacion);
+    this.guardar();
+  }
+
+  // HU-13: actualiza la clave del administrador y persiste el administrador en localStorage.
+  cambiarClaveAdministrador(claveActual, claveNueva, confirmacion) {
+    if (!this.#administrador) {
+      throw new Error("No se encontró la cuenta de administrador.");
+    }
+    this.#administrador.cambiarClave(claveActual, claveNueva, confirmacion);
     this.guardar();
   }
 
@@ -411,6 +479,21 @@ class Sistema {
       return new TarjetaCredito(this.#generarNumero(), cupoTarjeta);
     }
     return new Clase(this.#generarNumero());
+  }
+    #exigirRestablecimientoPendiente(id) {
+    const restablecimiento = this.#restablecimientos.find((r) => r.id === id);
+    if (!restablecimiento) {
+      throw new Error("La solicitud de restablecimiento no existe.");
+    }
+    if (!restablecimiento.pendiente) {
+      throw new Error(`La solicitud ${id} ya fue ${restablecimiento.estado.toLowerCase()}.`);
+    }
+    return restablecimiento;
+  }
+
+  // Clave temporal de 10 caracteres (cumple el mínimo de 8). El cliente deberá cambiarla al entrar.
+  #generarClaveTemporal() {
+    return "Mova" + String(Math.floor(Math.random() * 9e5) + 1e5);
   }
 
   #exigirSolicitudPendiente(id) {

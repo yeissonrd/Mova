@@ -104,3 +104,12 @@ footer { padding: 30px 7vw; border-top: 1px solid var(--line); display: flex; al
 #card-payment-method-fields .info-note { justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 #card-payment-method-fields .payment-help { margin: -4px 0 14px; font-size: 11px; line-height: 1.55; }
 #card-payment-method-fields select, #card-pay-method { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; }
+.admin-config-panel { max-width: 760px; }
+.admin-config-panel form { display: grid; gap: 15px; }
+.admin-config-panel .field { margin: 0; }
+.admin-config-panel .panel-title > i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 11px; color: var(--teal-dark); background: var(--mint); }
+.admin-config-notice { margin: 0; padding: 12px 14px; border-radius: 10px; font-size: 12px; line-height: 1.5; }
+.admin-config-notice.success { color: #197a6c; background: #e9f8f4; border: 1px solid #b8e8dc; }
+.admin-config-notice.error { color: #b33c46; background: #fff0f0; border: 1px solid #f1c7ca; }
+
+@media (max-width: 620px) { .admin-shell .admin-mobile-nav { display: flex; } }

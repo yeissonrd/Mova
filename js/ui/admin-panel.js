@@ -11,6 +11,7 @@ const VISTAS_ADMIN = {
   resumen: "Resumen",
   clientes: "Clientes",
   tickets: "Gestión de tickets",
+  configuracion: "Configuración",
 };
 
 let vistaAdminActual = "resumen";

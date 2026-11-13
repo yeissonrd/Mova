@@ -81,6 +81,7 @@ function pintarPestanasAdmin() {
   const clientes = sistema.clientes;
   ponerTextoAdmin("tab-cuenta-todos", clientes.length);
   ponerTextoAdmin("tab-cuenta-solicitudes", sistema.solicitudesPendientes.length);
+  ponerTextoAdmin("tab-cuenta-claves", sistema.restablecimientosPendientes.length);
   ponerTextoAdmin("tab-cuenta-bloqueados", clientes.filter((c) => c.estaBloqueado()).length);
   document.querySelectorAll("#screen-admin [data-pestana]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.pestana === pestanaClientesAdmin);
@@ -93,6 +94,7 @@ const TABLAS_ADMIN = {
   todos: { titulo: "Clientes existentes", nota: "Consulta y administra los usuarios registrados", columnas: ["CLIENTE", "IDENTIFICACIÓN", "PRODUCTOS", "ESTADO", "ACCIONES"] },
   bloqueados: { titulo: "Clientes bloqueados", nota: "Bloqueados por el administrador o por 3 intentos fallidos", columnas: ["CLIENTE", "IDENTIFICACIÓN", "PRODUCTOS", "ESTADO", "ACCIONES"] },
   solicitudes: { titulo: "Solicitudes de clientes nuevos", nota: "Personas que se registraron y esperan aprobación", columnas: ["ASPIRANTE", "IDENTIFICACIÓN", "PRODUCTO ELEGIDO", "FECHA", "ACCIONES"] },
+  claves: { titulo: "Recuperar contraseña", nota: "Clientes que olvidaron su clave y esperan una clave temporal", columnas: ["CLIENTE", "IDENTIFICACIÓN", "USUARIO", "FECHA", "ACCIONES"] },
 };
 
 function pintarCabeceraTablaAdmin() {
@@ -110,6 +112,10 @@ function pintarFilasAdmin() {
   pintarCabeceraTablaAdmin();
   if (pestanaClientesAdmin === "solicitudes") {
     pintarSolicitudesAdmin(wrap, textoBuscadorAdmin()); // admin-solicitudes.js
+    return;
+  }
+    if (pestanaClientesAdmin === "claves") {
+    pintarRestablecimientosAdmin(wrap, textoBuscadorAdmin()); // admin-claves.js
     return;
   }
   let clientes = sistema.buscarClientes(textoBuscadorAdmin());
@@ -430,10 +436,13 @@ function abrirDetalleClienteAdmin(userName) {
       <div class="detalle-productos">${PRODUCTOS_ADMIN.map((info) => productoDetalleAdminHtml(cliente, info)).join("")}</div>
       <p class="admin-modal-error" id="det-error"></p>
       <div class="admin-modal-botones">
+        <button type="button" class="btn btn-secondary boton-extracto" id="det-extracto"><i data-icon="download" data-size="17"></i><span>Descargar extracto</span></button>
         <button type="button" class="btn btn-secondary" id="det-bloqueo"><span>${bloqueado ? "Desbloquear" : "Bloquear"}</span></button>
         <button type="button" class="btn btn-primary" id="det-editar"><span>Editar datos</span></button>
       </div>
     </div>`);
+  // HU-12: el mismo extracto en PDF que descarga el cliente (extracto.js), con opción de todo el historial.
+  fondo.querySelector("#det-extracto").addEventListener("click", () => abrirVentanaExtracto(cliente, { conHistorial: true }));
   fondo.querySelector("#det-editar").addEventListener("click", () => abrirModalEdicionAdmin(userName));
   fondo.querySelector("#det-bloqueo").addEventListener("click", () => {
     alternarBloqueoAdmin(userName);
