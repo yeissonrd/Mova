@@ -70,14 +70,14 @@ Historias de usuario del proyecto integrador (CESDE · Desarrollo de Software). 
 
 **Como:** cliente con una Cuenta de Ahorros.
 
-**Quiero:** consignar y retirar dinero, y recibir automáticamente un rendimiento mensual del 1.5% sobre el monto retirado.
+**Quiero:** consignar y retirar dinero, y recibir automáticamente un rendimiento del 1.5% en el primer retiro de cada mes.
 
 **Para:** hacer crecer mis ahorros mientras uso mi cuenta con normalidad.
 
 **Criterios de aceptación:**
 
 1. El retiro no puede superar el saldo disponible.
-2. El rendimiento mensual del 1.5% se calcula sobre el monto retirado y se abona a la cuenta como movimiento positivo.
+2. El rendimiento del 1.5% se calcula sobre el monto retirado en el primer retiro de cada mes y se abona a la cuenta como movimiento positivo.
 3. El nuevo saldo se muestra al finalizar la operación.
 
 ## HU-05 · CuentaCorriente

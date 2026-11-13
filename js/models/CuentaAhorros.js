@@ -1,6 +1,6 @@
 /* ============================================================
    CuentaAhorros — hereda de Cuenta (HU-04).
-   Regla propia: al retirar se abona al cliente un interés del 1,5 %.
+   Regla propia: el primer retiro del mes abona al cliente un interés del 1,5 %.
    ============================================================ */
 class CuentaAhorros extends Cuenta {
   static TASA_RETIRO = 0.015; // 1,5 %
@@ -18,15 +18,15 @@ class CuentaAhorros extends Cuenta {
   }
 
   // Sobrescribe retirar() de Cuenta (polimorfismo).
-  // El retiro no supera el saldo disponible; el rendimiento se abona como movimiento positivo.
+  // El retiro no supera el saldo disponible; se abona una sola vez por mes calendario.
   retirar(valor) {
     this._validarMonto(valor);
     if (!Number.isInteger(valor)) throw new Error("El valor debe expresarse en pesos enteros.");
-    const interes = Math.round(valor * CuentaAhorros.TASA_RETIRO);
     if (valor > this.saldo) {
       throw new Error(`Saldo insuficiente. Puedes retirar hasta ${Cuenta.formatear(this.saldo)}.`);
     }
 
+    const interes = this.#yaAbonoEsteMes() ? 0 : Math.round(valor * CuentaAhorros.TASA_RETIRO);
     const retiro = this._aplicar("Retiro", -valor, { interes });
     if (interes > 0) {
       this._aplicar("Interés abonado (1,5 %)", interes, { tasa: CuentaAhorros.TASA_RETIRO, base: valor });
@@ -36,5 +36,14 @@ class CuentaAhorros extends Cuenta {
 
   static fromJSON(datos) {
     return new CuentaAhorros(datos.numero, datos.saldo, datos.movimientos.map((m) => Movimiento.fromJSON(m)));
+  }
+
+  #yaAbonoEsteMes() {
+    const hoy = new Date();
+    return this.historial().some((movimiento) => {
+      if (movimiento.tipo !== "Interés abonado (1,5 %)") return false;
+      const fecha = movimiento.fecha instanceof Date ? movimiento.fecha : new Date(movimiento.fecha);
+      return Number.isFinite(fecha.getTime()) && fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+    });
   }
 }

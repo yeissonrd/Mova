@@ -14,7 +14,7 @@ class CatalogoProductos {
       beneficios: () => [
         "Consigna y retira cuando quieras, desde tu panel.",
         "Puedes retirar hasta tu saldo disponible.",
-        "Al retirar, recibes un rendimiento mensual del 1,5 % sobre el monto, registrado como abono aparte.",
+        "En el primer retiro de cada mes recibes un rendimiento del 1,5 % sobre el monto, registrado como abono aparte.",
         "Transfiere a otros productos MOVA en segundos.",
         "Consulta tu historial completo y descarga tu extracto del mes.",
       ],

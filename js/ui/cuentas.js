@@ -22,7 +22,7 @@ function cuentasDelCliente(cliente) {
 function notaCuentaHtml(p) {
   const texto =
     p.codigo === "ahorros"
-      ? "Al retirar, se abona a tu cuenta el rendimiento mensual del 1,5 % sobre el monto retirado."
+      ? "En el primer retiro de cada mes se abona a tu cuenta un rendimiento del 1,5 % sobre el monto retirado."
       : p.saldo <= 0
         ? "No puedes retirar hasta volver a consignar (tu saldo está en 0 o negativo)."
         : `Sobregiro: puedes retirar hasta ${formatMoney(p.limiteRetiro())} (saldo + 20 %).`;

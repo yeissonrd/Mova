@@ -29,7 +29,7 @@ El seguimiento de todas las historias (HU-01 a HU-17) está en el Excel del equi
 **Cliente**
 - Registro (queda como solicitud hasta que el banco la aprueba) e inicio de sesión con bloqueo de 24 horas tras 3 claves incorrectas.
 - Resumen con saldo total, productos y últimos movimientos; historial con filtros.
-- Cuenta de ahorros (abona un rendimiento mensual del 1,5 % al retirar, sobre el monto retirado), cuenta corriente (sobregiro del 20 %) y tarjeta de crédito (compras de 1 a 36 cuotas y abonos).
+- Cuenta de ahorros (abona un rendimiento del 1,5 % en el primer retiro de cada mes), cuenta corriente (sobregiro del 20 %) y tarjeta de crédito (compras de 1 a 36 cuotas y abonos).
 - Transferencias entre cuentas.
 - Perfil y seguridad: editar datos, cambiar y ver la contraseña, menú de cuenta con cierre de sesión.
 - Campana de notificaciones con los movimientos nuevos.
