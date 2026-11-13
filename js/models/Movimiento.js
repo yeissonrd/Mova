@@ -11,6 +11,10 @@ class Movimiento {
   // Nombre para mostrar cuando es distinto al tipo guardado (el tipo no cambia para no romper filtros ni datos).
   static NOMBRES = Object.freeze({ "Pago de tarjeta": "Abono a tarjeta" });
 
+  // HU-17: dinero que se mueve entre la cuenta de ahorros y una meta del mismo cliente.
+  // Para el cliente es salida/entrada de su cuenta, pero el dinero no sale del banco.
+  static TIPOS_INTERNOS = Object.freeze(["Aporte a meta", "Devolución de meta"]);
+
   constructor(tipo, monto, saldoResultante, detalle = {}, fecha = new Date()) {
     this.tipo = tipo;                       // "Consignación", "Retiro", "Compra en cuotas"...
     this.monto = monto;                     // positivo = entra dinero, negativo = sale
@@ -20,7 +24,12 @@ class Movimiento {
   }
 
   get titulo() {
-    return Movimiento.NOMBRES[this.tipo] || this.tipo;
+    const nombre = Movimiento.NOMBRES[this.tipo] || this.tipo;
+    return this.detalle && this.detalle.meta ? `${nombre} · ${this.detalle.meta}` : nombre;
+  }
+
+  get esInterno() {
+    return Movimiento.TIPOS_INTERNOS.includes(this.tipo);
   }
 
   get esNeutro() {

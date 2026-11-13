@@ -34,6 +34,22 @@ class CuentaAhorros extends Cuenta {
     return retiro;
   }
 
+  // ---------- HU-17: metas de ahorro ----------
+  // Aparta dinero hacia una meta. No es un retiro: no abona el 1,5 % y no puede superar el saldo.
+  apartarParaMeta(valor, meta) {
+    this._validarMonto(valor);
+    if (valor > this.saldo) {
+      throw new Error(`Saldo insuficiente. Puedes apartar hasta ${Cuenta.formatear(this.saldo)}.`);
+    }
+    return this._aplicar("Aporte a meta", -valor, { meta: meta.nombre, metaId: meta.id });
+  }
+
+  // Devuelve a la cuenta dinero que estaba apartado en una meta.
+  devolverDeMeta(valor, meta) {
+    this._validarMonto(valor);
+    return this._aplicar("Devolución de meta", valor, { meta: meta.nombre, metaId: meta.id });
+  }
+
   static fromJSON(datos) {
     return new CuentaAhorros(datos.numero, datos.saldo, datos.movimientos.map((m) => Movimiento.fromJSON(m)));
   }

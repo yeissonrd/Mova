@@ -44,7 +44,14 @@ function cuentaCardHtml(p, destacada) {
         <button class="btn btn-secondary" data-op="retirar" data-numero="${p.numero}"><i data-icon="minus" data-size="18"></i><span>Retirar</span></button>
       </div>
       ${notaCuentaHtml(p)}
+      ${p.codigo === "ahorros" ? metasAccesoHtml() : ""}
     </section>`;
+}
+
+// HU-17: acceso a las metas de ahorro desde la cuenta de ahorros (metas.js).
+function metasAccesoHtml() {
+  const enMetas = clienteActual ? clienteActual.totalEnMetas : 0;
+  return `<button class="metas-acceso" data-go="goals"><i data-icon="meta" data-size="17"></i>Mis metas de ahorro<small>${enMetas > 0 ? formatMoney(enMetas) + " apartados" : "Crea tu primera meta"}</small></button>`;
 }
 
 // Movimientos de las cuentas (ahorros y corriente), del más reciente al más antiguo.
