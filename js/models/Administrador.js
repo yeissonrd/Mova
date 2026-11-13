@@ -123,6 +123,25 @@ class Administrador {
   denegarRestablecimiento(id) {
     return this.#sistema.denegarRestablecimiento(id);
   }
+    // HU-14: gestión de subadministradores (solo el principal; el Subadministrador lo bloquea).
+  listarSubadministradores() {
+    return this.#sistema.subadministradores;
+  }
+
+  crearSubadministrador(datos) {
+    return this.#sistema.crearSubadministrador(datos);
+  }
+
+  editarSubadministrador(userName, cambios) {
+    return this.#sistema.editarSubadministrador(userName, cambios);
+  }
+
+  eliminarSubadministrador(userName, confirmado = false) {
+    if (confirmado !== true) {
+      throw new Error("Debes confirmar la eliminación del subadministrador.");
+    }
+    return this.#sistema.eliminarSubadministrador(userName);
+  }
 
   toJSON() {
     return { nombre: this.nombre, userName: this.userName, clave: this.#clave };

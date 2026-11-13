@@ -52,6 +52,10 @@ class Subadministrador extends Administrador {
   abrirProducto() { this.#soloPrincipal("abrir productos"); }
   aprobarRestablecimiento() { this.#soloPrincipal("aprobar restablecimientos de clave"); }
   denegarRestablecimiento() { this.#soloPrincipal("denegar restablecimientos de clave"); }
+  listarSubadministradores() { this.#soloPrincipal("ver los subadministradores"); }
+  crearSubadministrador() { this.#soloPrincipal("crear subadministradores"); }
+  editarSubadministrador() { this.#soloPrincipal("editar subadministradores"); }
+  eliminarSubadministrador() { this.#soloPrincipal("eliminar subadministradores"); }
 
   #exigir(permiso, accion) {
     if (!this.tienePermiso(permiso)) {
