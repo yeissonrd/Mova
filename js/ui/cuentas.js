@@ -50,16 +50,16 @@ function cuentaCardHtml(p, destacada) {
 // Movimientos de las cuentas (ahorros y corriente), del más reciente al más antiguo.
 function movimientosCuentasHtml(cuentas) {
   const items = cuentas
-    .flatMap((p) => p.historial())
-    .sort((a, b) => b.fecha - a.fecha)
+    .flatMap((producto) => producto.historial().map((movimiento) => ({ producto, movimiento })))
+    .sort((a, b) => b.movimiento.fecha - a.movimiento.fecha)
     .slice(0, 8);
   if (items.length === 0) return `<p class="empty">Aún no tienes movimientos.</p>`;
   return `<div class="movement-list">${items
     .map(
-      (m) => `
+      ({ producto, movimiento: m }) => `
     <div class="movement">
       <i class="${m.esIngreso ? "green" : "red"}" data-icon="${m.esIngreso ? "plus" : "minus"}" data-size="18"></i>
-      <div><b>${m.tipo}</b><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
+      <div><b>${m.tipo}</b><small>${producto.tipo} · ${producto.numero}</small><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
       <strong class="${m.esIngreso ? "positive" : ""}">${m.esIngreso ? "+" : "−"} ${formatMoney(Math.abs(m.monto))}</strong>
     </div>`,
     )
