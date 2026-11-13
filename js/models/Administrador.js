@@ -20,6 +20,11 @@ class Administrador {
     return this.#clave === clave;
   }
 
+  // HU-14: el administrador principal tiene todos los permisos (el Subadministrador lo redefine).
+  tienePermiso() {
+    return true;
+  }
+
   // HU-13: el administrador cambia su clave validando la actual y su confirmación.
   cambiarClave(claveActual, claveNueva, confirmacion) {
     if (!this.verificarClave(claveActual)) {
