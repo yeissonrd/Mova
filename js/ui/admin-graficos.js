@@ -62,7 +62,14 @@ class EstadisticasBanco {
     return anterior ? anterior.saldoResultante : 0;
   }
 
-  // Dinero en ahorros y en corriente al cierre de cada periodo (el último periodo usa el saldo actual).
+  // HU-17: dinero que la cuenta tenía apartado en metas en ese momento (sigue siendo del cliente y del banco).
+  static #enMetas(cuenta, momento) {
+    return cuenta.historial()
+      .filter((m) => m.esInterno && m.fecha < momento)
+      .reduce((total, m) => total - m.monto, 0);
+  }
+
+  // Dinero en ahorros (incluye lo apartado en metas) y en corriente al cierre de cada periodo (el último usa el saldo actual).
   dinero(escala) {
     const ahorros = this.#cuentas("ahorros");
     const corrientes = this.#cuentas("corriente");
@@ -70,7 +77,7 @@ class EstadisticasBanco {
     return lista.map((p, i) => {
       const ultimo = i === lista.length - 1;
       const suma = (cuentas) =>
-        cuentas.reduce((total, c) => total + (ultimo ? c.saldo : EstadisticasBanco.#saldoEn(c, p.fin)), 0);
+        cuentas.reduce((total, c) => total + (ultimo ? c.saldo : EstadisticasBanco.#saldoEn(c, p.fin)) + EstadisticasBanco.#enMetas(c, p.fin), 0);
       const a = suma(ahorros);
       const c = suma(corrientes);
       return { etiqueta: p.etiqueta, ahorros: a, corriente: c, total: a + c };
@@ -80,7 +87,8 @@ class EstadisticasBanco {
   // Entradas (montos positivos) y salidas (montos negativos) de todos los productos en cada periodo.
   movimientos(escala) {
     // Los movimientos neutros (por ejemplo, un ajuste de cupo) no son dinero que entra ni sale.
-    const todos = this.#clientes.flatMap((c) => c.productos).flatMap((p) => p.historial()).filter((m) => !m.esNeutro);
+    // HU-17: los aportes y devoluciones de metas tampoco (el dinero sigue en el banco).
+    const todos = this.#clientes.flatMap((c) => c.productos).flatMap((p) => p.historial()).filter((m) => !m.esNeutro && !m.esInterno);
     return this.periodos(escala).map((p) => {
       const delPeriodo = todos.filter((m) => m.fecha >= p.inicio && m.fecha < p.fin);
       return {

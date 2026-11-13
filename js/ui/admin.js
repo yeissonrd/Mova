@@ -68,8 +68,12 @@ function pintarMetricasAdmin() {
 
   ponerTextoAdmin("met-clientes", clientes.length);
   ponerTextoAdmin("met-clientes-nota", bloqueados > 0 ? `${bloqueados} bloqueado(s)` : "Ninguno bloqueado");
-  ponerTextoAdmin("met-ahorros", formatMoney(sumar(ahorros)));
-  ponerTextoAdmin("met-ahorros-nota", `${ahorros.length} ${ahorros.length === 1 ? "cuenta" : "cuentas"}`);
+  const enMetas = clientes.reduce((suma, c) => suma + c.totalEnMetas, 0); // HU-17
+  ponerTextoAdmin("met-ahorros", formatMoney(sumar(ahorros) + enMetas));
+  ponerTextoAdmin(
+    "met-ahorros-nota",
+    `${ahorros.length} ${ahorros.length === 1 ? "cuenta" : "cuentas"}${enMetas > 0 ? ` · ${formatMoney(enMetas)} en metas` : ""}`
+  );
   ponerTextoAdmin("met-corriente", formatMoney(sumar(corrientes)));
   ponerTextoAdmin("met-corriente-nota", `${corrientes.length} ${corrientes.length === 1 ? "cuenta" : "cuentas"}`);
   ponerTextoAdmin("met-solicitudes", pendientes);

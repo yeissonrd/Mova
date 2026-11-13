@@ -448,6 +448,61 @@ class Sistema {
     return { medio, banco: medio === "pse" ? banco : null, valor, referencia, codigo, correo: cliente.correo, estado: "pendiente" };
   }
 
+  // ---------- HU-17: metas de ahorro ----------
+  // Todas usan la cuenta de ahorros del cliente y guardan al terminar.
+  #exigirAhorros(cliente) {
+    const cuenta = cliente.buscarProductoPorCodigo("ahorros");
+    if (!cuenta) {
+      throw new Error("Necesitas una cuenta de ahorros para crear metas.");
+    }
+    return cuenta;
+  }
+
+  #exigirMeta(cliente, id) {
+    const meta = cliente.buscarMeta(id);
+    if (!meta) throw new Error("La meta no existe.");
+    return meta;
+  }
+
+  crearMeta(cliente, { nombre, objetivo, fechaLimite = null }) {
+    this.#exigirAhorros(cliente);
+    MetaAhorro.validar({ nombre, objetivo, fechaLimite });
+    const repetida = cliente.metas.some((m) => !m.cumplida && Sistema.normalizar(m.nombre) === Sistema.normalizar(nombre));
+    if (repetida) throw new Error("Ya tienes una meta activa con ese nombre.");
+    const id = "META-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 1000);
+    const meta = new MetaAhorro({ id, nombre, objetivo, fechaLimite });
+    cliente.agregarMeta(meta);
+    this.guardar();
+    return meta;
+  }
+
+  // Pasa dinero de la cuenta de ahorros a la meta (se valida todo antes de mover el dinero).
+  aportarAMeta(cliente, id, valor) {
+    const cuenta = this.#exigirAhorros(cliente);
+    const meta = this.#exigirMeta(cliente, id);
+    if (!Number.isInteger(valor) || valor <= 0) throw new Error("El valor debe ser un número entero de pesos mayor a 0.");
+    if (valor > cuenta.saldo) throw new Error(`Saldo insuficiente. Puedes apartar hasta ${Cuenta.formatear(cuenta.saldo)}.`);
+    meta.aportar(valor);
+    const movimiento = cuenta.apartarParaMeta(valor, meta);
+    this.guardar();
+    return movimiento;
+  }
+
+  // Devuelve dinero de la meta a la cuenta de ahorros.
+  devolverDeMeta(cliente, id, valor) {
+    const cuenta = this.#exigirAhorros(cliente);
+    const meta = this.#exigirMeta(cliente, id);
+    meta.devolver(valor);
+    const movimiento = cuenta.devolverDeMeta(valor, meta);
+    this.guardar();
+    return movimiento;
+  }
+
+  eliminarMeta(cliente, id) {
+    cliente.eliminarMeta(id);
+    this.guardar();
+  }
+
   // ---------- Transferencias (HU-07) ----------
   transferir(clienteOrigen, numeroOrigen, numeroDestino, valor) {
     const origen = this.#exigirProducto(clienteOrigen, numeroOrigen);
