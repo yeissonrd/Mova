@@ -74,6 +74,9 @@ class TarjetaCredito extends Cuenta {
   }
 
   static calcularTotal(valor, cuotas) {
+    // Con tasa 0 % la deuda debe ser exactamente el valor de compra;
+    // no se agrega ni se descuenta ningún cargo por cuota.
+    if (TarjetaCredito.tasaPorCuotas(cuotas) === 0) return valor;
     return Math.max(valor, TarjetaCredito.calcularCuota(valor, cuotas) * cuotas);
   }
 
@@ -94,7 +97,7 @@ class TarjetaCredito extends Cuenta {
     const movimiento = this._aplicar("Compra en cuotas", -valor, {
       descripcion, cuotas, tasaMensual, cuotaMensual, totalAPagar, planCuotas,
     });
-    return { movimiento, cuotas, tasaMensual, cuotaMensual, totalAPagar };
+    return { movimiento, valorCompra: valor, cuotas, tasaMensual, cuotaMensual, totalAPagar };
   }
 
   pagar(valor) {
