@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/encabezado.css" />
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/subadmins.css" />
 </head>
 <body>
 
@@ -284,6 +285,7 @@
           <button data-admin-vista="clientes"><i data-icon="users" data-size="20"></i> <span>Clientes</span></button>
           <button data-admin-vista="tickets"><i data-icon="ticket" data-size="20"></i> <span>Gestión de tickets</span></button>
           <button type="button" data-admin-vista="configuracion"><i data-icon="settings" data-size="20"></i> <span>Configuración</span></button>
+          <button type="button" data-admin-vista="subadmins"><i data-icon="shield" data-size="20"></i> <span>Subadministradores</span></button>
         </nav>
         <button class="logout" data-go="landing"><i data-icon="logout" data-size="20"></i> <span>Cerrar sesión</span></button>
       </aside>
@@ -398,7 +400,31 @@
                 <label class="field" for="admin-clave-confirmacion"><span>Confirmar nueva contraseña</span><div class="field-control"><i data-icon="lock" data-size="18"></i><input id="admin-clave-confirmacion" name="confirmacion" type="password" minlength="8" required autocomplete="new-password" /><button class="password-toggle" type="button" data-password-toggle="admin-clave-confirmacion" data-password-label="confirmación de contraseña" aria-label="Mostrar confirmación de contraseña" aria-pressed="false"><i data-icon="eye" data-size="17"></i></button></div></label>
                 <p id="admin-config-notice" class="admin-config-notice" role="status" aria-live="polite" hidden></p>
                 <button class="btn btn-primary" type="submit"><span>Guardar nueva contraseña</span></button>
+                
               </form>
+            </section>
+          </div>
+          <!-- ===== Vista: Subadministradores (HU-14) ===== -->
+          <div class="admin-vista" data-vista="subadmins" hidden>
+            <div class="page-heading">
+              <div>
+                <div class="eyebrow"><span></span> Equipo de administración</div>
+                <h1>Subadministradores</h1>
+                <p>Crea cuentas con permisos limitados para que te ayuden a gestionar MOVA.</p>
+              </div>
+              <button type="button" class="btn btn-primary" id="subadmin-nuevo"><i data-icon="plus" data-size="18"></i><span>Nuevo subadministrador</span></button>
+            </div>
+            <section class="panel client-table">
+              <div class="panel-title">
+                <div><h2>Cuentas del equipo</h2><p>Cada subadministrador solo ve lo que tú le permitas</p></div>
+              </div>
+              <div class="table-head subadmin-head">
+                <span>NOMBRE</span>
+                <span>USUARIO</span>
+                <span>PERMISOS</span>
+                <span>ACCIONES</span>
+              </div>
+              <div id="admin-subadmins-rows"></div>
             </section>
           </div>
         </main>
@@ -408,6 +434,7 @@
         <button data-admin-vista="clientes"><i data-icon="users" data-size="20"></i><span>Clientes</span></button>
         <button data-admin-vista="tickets"><i data-icon="ticket" data-size="20"></i><span>Tickets</span></button>
         <button data-admin-vista="configuracion" aria-label="Configuración"><i data-icon="settings" data-size="20"></i><span>Configuración</span></button>
+        <button data-admin-vista="subadmins" aria-label="Subadministradores"><i data-icon="shield" data-size="20"></i><span>Equipo</span></button>
         <button class="admin-salir-movil" data-go="landing"><i data-icon="logout" data-size="20"></i><span>Salir</span></button>
       </nav>
     </div>
@@ -439,6 +466,7 @@
   <script src="js/ui/admin.js" defer></script>
   <script src="js/ui/admin-panel.js" defer></script>
   <script src="js/ui/admin-config.js" defer></script>
+  <script src="js/ui/admin-subadmins.js" defer></script>
   <script src="js/ui/recuperar-clave.js" defer></script>
   <script src="js/ui/cambio-clave-obligatorio.js" defer></script>
   <script src="js/ui/recordarme.js" defer></script>

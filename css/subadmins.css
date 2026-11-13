@@ -1,0 +1,7 @@
+/* MOVA — css/subadmins.css  (HU-14: vista de subadministradores) */
+.subadmin-head, .subadmin-row { grid-template-columns: 1.6fr 1fr 1.6fr .8fr; }
+.subadmin-permisos { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; display: grid; gap: 10px; }
+.subadmin-permisos legend { font-size: 12px; font-weight: 700; padding: 0 6px; }
+.subadmin-permiso { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; }
+.subadmin-permiso input { width: 18px; height: 18px; accent-color: var(--teal-dark); }
+@media (max-width: 620px) { .subadmin-head, .subadmin-row { grid-template-columns: 2fr 1.4fr .8fr; } }
