@@ -1,0 +1,27 @@
+/* MOVA — css/subadmins.css  (HU-14: vista de subadministradores) */
+.subadmin-head, .subadmin-row { grid-template-columns: 1.6fr 1fr 1.6fr .8fr; }
+.subadmin-permisos { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; display: grid; gap: 10px; }
+.subadmin-permisos legend { font-size: 12px; font-weight: 700; padding: 0 6px; }
+.subadmin-permiso { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; }
+.subadmin-permiso input { width: 18px; height: 18px; accent-color: var(--teal-dark); }
+@media (max-width: 620px) { .subadmin-head, .subadmin-row { grid-template-columns: 2fr 1.4fr .8fr; } }
+
+
+/* HU-14: lo que se esconde según los permisos (las clases las pone js/ui/admin-permisos.js en <body>) */
+body.admin-sub [data-admin-vista="subadmins"],
+body.admin-sub [data-admin-vista="configuracion"],
+body.admin-sub [data-pestana="solicitudes"],
+body.admin-sub [data-pestana="claves"],
+body.admin-sub [data-vista="clientes"] .page-heading > .btn,
+body.admin-sub .row-actions [data-edit],
+body.admin-sub #det-editar,
+body.admin-sub [data-abrir-producto],
+body.admin-sub [data-mostrar-cupo],
+body.admin-sub [data-ajustar-cupo],
+body.admin-sin-tickets [data-admin-vista="tickets"],
+body.admin-sin-vista-clientes [data-admin-vista="clientes"],
+body.admin-sin-clientes [data-pestana="todos"],
+body.admin-sin-clientes #det-extracto,
+body.admin-sin-bloqueados [data-pestana="bloqueados"],
+body.admin-sin-bloqueados .row-actions [data-toggle-block],
+body.admin-sin-bloqueados #det-bloqueo { display: none !important; }

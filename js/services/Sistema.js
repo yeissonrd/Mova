@@ -31,6 +31,7 @@ class Sistema {
   #solicitudes = [];
   #administrador = null;
   #restablecimientos = [];
+  #subadministradores = []; // HU-14
 
   constructor(almacen = Sistema.almacenPorDefecto()) {
     this.#almacen = almacen;
@@ -63,6 +64,7 @@ class Sistema {
       clientes: this.#clientes,
       solicitudes: this.#solicitudes,
       restablecimientos: this.#restablecimientos,
+      subadministradores: this.#subadministradores, // HU-14
     };
     this.#almacen.setItem(Sistema.CLAVE_ALMACEN, JSON.stringify(estado)); // usa el toJSON() de cada clase
   }
@@ -72,6 +74,7 @@ class Sistema {
     this.#clientes = [];
     this.#solicitudes = [];
     this.#administrador = null;
+    this.#subadministradores = []; // HU-14
     const texto = this.#almacen.getItem(Sistema.CLAVE_ALMACEN);
     if (texto) {
       try {
@@ -79,6 +82,7 @@ class Sistema {
         this.#clientes = (estado.clientes || []).map((datos) => Cliente.fromJSON(datos));
         this.#solicitudes = (estado.solicitudes || []).map((datos) => Solicitud.fromJSON(datos));
         this.#restablecimientos = (estado.restablecimientos || []).map((datos) => Restablecimiento.fromJSON(datos));
+        this.#subadministradores = (estado.subadministradores || []).map((datos) => new Subadministrador(datos, this)); // HU-14 
         if (estado.administrador) {
           this.#administrador = new Administrador(estado.administrador, this);
         }
@@ -333,6 +337,61 @@ class Sistema {
     this.guardar();
   }
 
+  // ---------- HU-14: subadministradores ----------
+  get subadministradores() {
+    return [...this.#subadministradores];
+  }
+
+  buscarSubadministrador(userName) {
+    const buscado = Sistema.normalizar(userName);
+    return this.#subadministradores.find((s) => Sistema.normalizar(s.userName) === buscado) || null;
+  }
+
+  // El usuario debe ser único entre el administrador, los subadministradores y los clientes.
+  crearSubadministrador({ nombre, userName, clave, permisos }) {
+    const nombreLimpio = String(nombre || "").trim();
+    const usuario = String(userName || "").trim();
+    if (!nombreLimpio) throw new Error("Escribe el nombre del subadministrador.");
+    if (!usuario) throw new Error("Escribe el nombre de usuario.");
+    if (this.#usuarioEnUso(usuario)) throw new Error("Ese nombre de usuario ya está en uso.");
+    if (typeof clave !== "string" || clave.length < Administrador.LARGO_MINIMO_CLAVE) {
+      throw new Error(`La clave debe tener mínimo ${Administrador.LARGO_MINIMO_CLAVE} caracteres.`);
+    }
+    const subadministrador = new Subadministrador({ nombre: nombreLimpio, userName: usuario, clave, permisos }, this);
+    this.#subadministradores.push(subadministrador);
+    this.guardar();
+    return subadministrador;
+  }
+
+  editarSubadministrador(userName, { nombre, permisos }) {
+    const subadministrador = this.#exigirSubadministrador(userName);
+    const nombreLimpio = String(nombre || "").trim();
+    if (!nombreLimpio) throw new Error("Escribe el nombre del subadministrador.");
+    subadministrador.nombre = nombreLimpio;
+    subadministrador.asignarPermisos(permisos || []);
+    this.guardar();
+    return subadministrador;
+  }
+
+  eliminarSubadministrador(userName) {
+    const subadministrador = this.#exigirSubadministrador(userName);
+    this.#subadministradores = this.#subadministradores.filter((s) => s !== subadministrador);
+    this.guardar();
+  }
+
+  #exigirSubadministrador(userName) {
+    const subadministrador = this.buscarSubadministrador(userName);
+    if (!subadministrador) throw new Error("El subadministrador no existe.");
+    return subadministrador;
+  }
+
+  #usuarioEnUso(userName) {
+    return (
+      Sistema.normalizar(userName) === Sistema.normalizar(this.#administrador.userName) ||
+      this.buscarSubadministrador(userName) !== null ||
+      this.buscarCliente(userName) !== null
+    );
+  }
   // HU-08: edición de perfil por parte del propio cliente.
   actualizarPerfil(cliente, cambios) {
     return this.actualizarCliente(cliente.userName, cambios);
@@ -376,7 +435,7 @@ class Sistema {
   }
 
   autenticarAdministrador(userName, clave) {
-    const admin = this.#administrador;
+      const admin = [this.#administrador, ...this.#subadministradores].find((a) => Sistema.normalizar(a.userName) === Sistema.normalizar(userName)) || this.#administrador; // HU-14: también entran los subadministradores
     if (Sistema.normalizar(userName) !== Sistema.normalizar(admin.userName) || !admin.verificarClave(clave)) {
       throw new Error("El usuario o la clave no son correctos.");
     }
