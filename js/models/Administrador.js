@@ -44,12 +44,16 @@ class Administrador {
 
   // HU-01 criterio 1 y 4: registrar (el Sistema rechaza userName duplicado).
   registrarCliente(datos, productoInicial = "ahorros") {
-    return this.#sistema.registrarCliente(datos, productoInicial);
+    const cliente = this.#sistema.registrarCliente(datos, productoInicial);
+    this.#registrar("Cliente registrado", `${cliente.nombre} (${cliente.userName}); producto inicial: ${productoInicial}.`);
+    return cliente;
   }
 
   // HU-01 criterio 2: editar datos de un cliente existente.
   editarCliente(userName, cambios) {
-    return this.#sistema.actualizarCliente(userName, cambios);
+    const cliente = this.#sistema.actualizarCliente(userName, cambios);
+    this.#registrar("Cliente editado", `${cliente.nombre} (${cliente.userName}); campos: ${Object.keys(cambios).filter((campo) => campo !== "clave").join(", ") || "sin cambios"}.`);
+    return cliente;
   }
 
   // HU-01 criterio 3: eliminar, solo si ya se confirmó (la pantalla pregunta primero).
@@ -57,7 +61,9 @@ class Administrador {
     if (confirmado !== true) {
       throw new Error("Debes confirmar la eliminación del cliente.");
     }
-    return this.#sistema.eliminarCliente(userName);
+    const cliente = this.#sistema.buscarCliente(userName);
+    this.#sistema.eliminarCliente(userName);
+    this.#registrar("Cliente eliminado", `${cliente ? cliente.nombre : userName} (${userName}).`);
   }
 
   buscarClientes(texto) {
@@ -69,11 +75,15 @@ class Administrador {
   }
 
   bloquearCliente(userName) {
-    return this.#sistema.bloquearCliente(userName);
+    const cliente = this.#sistema.bloquearCliente(userName);
+    this.#registrar("Cliente bloqueado", `${cliente.nombre} (${cliente.userName}).`);
+    return cliente;
   }
 
   desbloquearCliente(userName) {
-    return this.#sistema.desbloquearCliente(userName);
+    const cliente = this.#sistema.desbloquearCliente(userName);
+    this.#registrar("Cliente desbloqueado", `${cliente.nombre} (${cliente.userName}).`);
+    return cliente;
   }
 
   // Solicitudes de clientes nuevos: el Sistema valida y guarda.
@@ -82,11 +92,15 @@ class Administrador {
   }
 
   aprobarSolicitud(id, productos, cupoTarjeta) {
-    return this.#sistema.aprobarSolicitud(id, productos, cupoTarjeta);
+    const cliente = this.#sistema.aprobarSolicitud(id, productos, cupoTarjeta);
+    this.#registrar("Solicitud aprobada", `Solicitud ${id}; cliente ${cliente.nombre} (${cliente.userName}); productos: ${productos.join(", ")}.`);
+    return cliente;
   }
 
   denegarSolicitud(id, motivo) {
-    return this.#sistema.denegarSolicitud(id, motivo);
+    const solicitud = this.#sistema.denegarSolicitud(id, motivo);
+    this.#registrar("Solicitud denegada", `Solicitud ${id}; usuario ${solicitud.userName}; motivo: ${motivo || "sin motivo"}.`);
+    return solicitud;
   }
 
   // HU-11: ajustar el cupo de la tarjeta de un cliente.
@@ -99,7 +113,9 @@ class Administrador {
     if (!tarjeta) {
       throw new Error("El cliente no tiene tarjeta de crédito.");
     }
-    return this.#sistema.ajustarCupo(cliente, tarjeta.numero, nuevoCupo);
+    const movimiento = this.#sistema.ajustarCupo(cliente, tarjeta.numero, nuevoCupo);
+    this.#registrar("Cupo de tarjeta ajustado", `${cliente.nombre} (${cliente.userName}); nuevo cupo: ${nuevoCupo}.`);
+    return movimiento;
   }
 
   // Abre un producto que el cliente todavía no tiene.
@@ -129,18 +145,35 @@ class Administrador {
   }
 
   crearSubadministrador(datos) {
-    return this.#sistema.crearSubadministrador(datos);
+    const subadmin = this.#sistema.crearSubadministrador(datos);
+    this.#registrar("Subadministrador creado", `${subadmin.nombre} (${subadmin.userName}); permisos: ${subadmin.permisos.join(", ") || "ninguno"}.`);
+    return subadmin;
   }
 
   editarSubadministrador(userName, cambios) {
-    return this.#sistema.editarSubadministrador(userName, cambios);
+    const subadmin = this.#sistema.editarSubadministrador(userName, cambios);
+    this.#registrar("Subadministrador editado", `${subadmin.nombre} (${subadmin.userName}); permisos: ${subadmin.permisos.join(", ") || "ninguno"}.`);
+    return subadmin;
   }
 
   eliminarSubadministrador(userName, confirmado = false) {
     if (confirmado !== true) {
       throw new Error("Debes confirmar la eliminación del subadministrador.");
     }
-    return this.#sistema.eliminarSubadministrador(userName);
+    const subadmin = this.#sistema.buscarSubadministrador(userName);
+    this.#sistema.eliminarSubadministrador(userName);
+    this.#registrar("Subadministrador eliminado", `${subadmin ? subadmin.nombre : userName} (${userName}).`);
+  }
+
+  cambiarEstadoTicket(centroAyuda, numero, estado, respuesta) {
+    const ticket = centroAyuda.responderTicket(numero, estado, respuesta);
+    this.#registrar("Estado de ticket cambiado", `Ticket ${numero}; estado: ${estado}.`);
+    return ticket;
+  }
+
+  #registrar(accion, detalle) {
+    const rol = this instanceof Subadministrador ? "Subadministrador" : "Administrador principal";
+    this.#sistema.registrarAccion(this.nombre, accion, detalle, rol);
   }
 
   toJSON() {

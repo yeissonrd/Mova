@@ -13,6 +13,7 @@ const VISTAS_ADMIN = {
   tickets: "Gestión de tickets",
   configuracion: "Configuración",
   subadmins: "Subadministradores",
+  bitacora: "Bitácora",
 };
 
 let vistaAdminActual = "resumen";
@@ -20,6 +21,10 @@ let vistaAdminActual = "resumen";
 // Muestra una vista y oculta las demás. Repinta los datos para que estén al día.
 function mostrarVistaAdmin(vista) {
   if (!VISTAS_ADMIN[vista]) return;
+  if (vista === "bitacora" && (!adminActual || adminActual instanceof Subadministrador)) {
+    mostrarVistaAdmin("resumen");
+    return;
+  }
   vistaAdminActual = vista;
   document.querySelectorAll("#screen-admin .admin-vista").forEach((el) => {
     el.hidden = el.dataset.vista !== vista;
@@ -32,6 +37,7 @@ function mostrarVistaAdmin(vista) {
   if (typeof cerrarModalAdmin === "function") cerrarModalAdmin();
   if (typeof avisoAdmin === "function") avisoAdmin("");
   if (adminActual) pintarPanelAdmin();
+  if (vista === "bitacora" && typeof pintarBitacoraAdmin === "function") pintarBitacoraAdmin();
   window.scrollTo({ top: 0 });
 }
 

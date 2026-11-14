@@ -4,12 +4,15 @@
 .subadmin-permisos legend { font-size: 12px; font-weight: 700; padding: 0 6px; }
 .subadmin-permiso { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; }
 .subadmin-permiso input { width: 18px; height: 18px; accent-color: var(--teal-dark); }
+.bitacora-head, .bitacora-row { grid-template-columns: 1.1fr 1.2fr 1.3fr 2.4fr; }
+.bitacora-row > span { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 620px) { .subadmin-head, .subadmin-row { grid-template-columns: 2fr 1.4fr .8fr; } }
 
 
 /* HU-14: lo que se esconde según los permisos (las clases las pone js/ui/admin-permisos.js en <body>) */
 body.admin-sub [data-admin-vista="subadmins"],
 body.admin-sub [data-admin-vista="configuracion"],
+body.admin-sub [data-admin-vista="bitacora"],
 body.admin-sub [data-pestana="solicitudes"],
 body.admin-sub [data-pestana="claves"],
 body.admin-sub [data-vista="clientes"] .page-heading > .btn,
