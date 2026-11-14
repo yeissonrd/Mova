@@ -42,6 +42,11 @@ class Subadministrador extends Administrador {
     return super.desbloquearCliente(userName);
   }
 
+  cambiarEstadoTicket(centroAyuda, numero, estado, respuesta) {
+    this.#exigir("tickets", "gestionar tickets");
+    return super.cambiarEstadoTicket(centroAyuda, numero, estado, respuesta);
+  }
+
   // Lo que SOLO hace el administrador principal: se bloquea aquí.
   registrarCliente() { this.#soloPrincipal("registrar clientes"); }
   editarCliente() { this.#soloPrincipal("editar clientes"); }

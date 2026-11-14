@@ -32,6 +32,7 @@ class Sistema {
   #administrador = null;
   #restablecimientos = [];
   #subadministradores = []; // HU-14
+  #bitacora = []; // HU-16
 
   constructor(almacen = Sistema.almacenPorDefecto()) {
     this.#almacen = almacen;
@@ -65,6 +66,7 @@ class Sistema {
       solicitudes: this.#solicitudes,
       restablecimientos: this.#restablecimientos,
       subadministradores: this.#subadministradores, // HU-14
+      bitacora: this.#bitacora,
     };
     this.#almacen.setItem(Sistema.CLAVE_ALMACEN, JSON.stringify(estado)); // usa el toJSON() de cada clase
   }
@@ -75,6 +77,7 @@ class Sistema {
     this.#solicitudes = [];
     this.#administrador = null;
     this.#subadministradores = []; // HU-14
+    this.#bitacora = [];
     const texto = this.#almacen.getItem(Sistema.CLAVE_ALMACEN);
     if (texto) {
       try {
@@ -83,6 +86,7 @@ class Sistema {
         this.#solicitudes = (estado.solicitudes || []).map((datos) => Solicitud.fromJSON(datos));
         this.#restablecimientos = (estado.restablecimientos || []).map((datos) => Restablecimiento.fromJSON(datos));
         this.#subadministradores = (estado.subadministradores || []).map((datos) => new Subadministrador(datos, this)); // HU-14 
+        this.#bitacora = (estado.bitacora || []).map((datos) => RegistroBitacora.fromJSON(datos));
         if (estado.administrador) {
           this.#administrador = new Administrador(estado.administrador, this);
         }
@@ -138,6 +142,17 @@ class Sistema {
 
   get administrador() {
     return this.#administrador;
+  }
+
+  get bitacora() {
+    return [...this.#bitacora].sort((a, b) => b.fecha - a.fecha);
+  }
+
+  registrarAccion(actor, accion, detalle = "", rol = "Administrador") {
+    const registro = new RegistroBitacora({ actor, accion, detalle, rol });
+    this.#bitacora.push(registro);
+    this.guardar();
+    return registro;
   }
 
   static normalizar(texto) {

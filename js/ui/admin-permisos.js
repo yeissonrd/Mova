@@ -31,6 +31,7 @@ function aplicarPermisosAdmin() {
     tickets: puede("tickets"),
     configuracion: !esSub,
     subadmins: !esSub,
+    bitacora: !esSub,
   };
   if (!vistaPermitida[vistaAdminActual]) {
     mostrarVistaAdmin("resumen");

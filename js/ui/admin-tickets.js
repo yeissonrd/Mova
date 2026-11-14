@@ -182,7 +182,7 @@ function abrirTicketAdmin(numero) {
     error.style.display = "none";
     try {
       const estado = fondo.querySelector("#tk-estado").value;
-      centroAyuda.responderTicket(numero, estado, fondo.querySelector("#tk-respuesta").value);
+      adminActual.cambiarEstadoTicket(centroAyuda, numero, estado, fondo.querySelector("#tk-respuesta").value);
       cerrarModalAdmin();
       pintarTicketsAdmin();
       avisoTickets(`Ticket ${numero} actualizado: ${estado}.`, true);

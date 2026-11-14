@@ -182,7 +182,8 @@ function pintarPanelAdmin() {
   if (typeof pintarGraficosAdmin === "function") pintarGraficosAdmin(); // admin-graficos.js
   if (typeof pintarTicketsAdmin === "function") pintarTicketsAdmin(); // admin-tickets.js
   if (typeof pintarSubadminsAdmin === "function") pintarSubadminsAdmin(); // admin-subadmins.js (HU-14)
-    if (typeof aplicarPermisosAdmin === "function") aplicarPermisosAdmin(); // admin-permisos.js (HU-14)
+  if (typeof pintarBitacoraAdmin === "function") pintarBitacoraAdmin(); // admin-bitacora.js (HU-16)
+  if (typeof aplicarPermisosAdmin === "function") aplicarPermisosAdmin(); // admin-permisos.js (HU-14)
 }
 
 // Cambia de pestaña en la vista Clientes.
