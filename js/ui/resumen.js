@@ -87,6 +87,7 @@ function dashboardHtml() {
     <button data-go="transfer"><i data-icon="send"></i><span><b>Transferir</b><small>A otra cuenta</small></span><i data-icon="chevron" data-size="17"></i></button>
     <button data-go="accounts"><i data-icon="plus"></i><span><b>Consignar</b><small>Agregar dinero</small></span><i data-icon="chevron" data-size="17"></i></button>
     <button data-go="accounts"><i data-icon="minus"></i><span><b>Retirar</b><small>Desde tus cuentas</small></span><i data-icon="chevron" data-size="17"></i></button>
+    <button data-go="goals"><i data-icon="meta"></i><span><b>Metas</b><small>Ahorra para tus planes</small></span><i data-icon="chevron" data-size="17"></i></button>
   </div>
   <div class="dashboard-grid">
     <section class="panel products-panel">

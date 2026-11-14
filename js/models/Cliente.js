@@ -37,7 +37,9 @@ class Cliente {
   #intentosFallidos;
   #bloqueadoHasta; // Date o null (bloqueo temporal por intentos fallidos)
   #bloqueadoPorAdmin; // true si el administrador lo bloqueó
+  #debeCambiarClave; // true si entró con una clave temporal (HU-15)
   #fechaRegistro;
+  #metas; // HU-17: metas de ahorro (arreglo de MetaAhorro)
 
   // "datos" trae los campos del formulario; "estado" solo se usa al reconstruir desde localStorage.
   constructor({ identificacion, nombre, telefono, userName, correo, clave }, estado = {}) {
@@ -54,7 +56,10 @@ class Cliente {
     this.#bloqueadoHasta = estado.bloqueadoHasta || null;
     this.#bloqueadoPorAdmin = estado.bloqueadoPorAdmin || false;
     this.#fechaRegistro = estado.fechaRegistro || new Date();
+    this.#metas = estado.metas || [];
+    this.#debeCambiarClave = estado.debeCambiarClave || false;
   }
+  
 
   // ---------- Consultas ----------
   get identificacion() { return this.#datos.identificacion; }
@@ -66,6 +71,7 @@ class Cliente {
   get intentosFallidos() { return this.#intentosFallidos; }
   get bloqueadoHasta() { return this.#bloqueadoHasta; }
   get bloqueadoPorAdmin() { return this.#bloqueadoPorAdmin; }
+  get debeCambiarClave() { return this.#debeCambiarClave; }
   get productos() { return [...this.#productos]; }
 
   // Suma de los saldos de las cuentas (la tarjeta no cuenta: su "saldo" es cupo, no dinero propio).
@@ -94,6 +100,40 @@ class Cliente {
     return this.#productos.find((producto) => producto.codigo === codigo) || null;
   }
 
+  // ---------- HU-17: metas de ahorro ----------
+  get metas() { return [...this.#metas]; }
+
+  get metasActivas() {
+    return this.#metas.filter((meta) => !meta.cumplida);
+  }
+
+  // Total apartado en todas las metas (dinero del cliente que no está en la cuenta).
+  get totalEnMetas() {
+    return this.#metas.reduce((suma, meta) => suma + meta.ahorrado, 0);
+  }
+
+  buscarMeta(id) {
+    return this.#metas.find((meta) => meta.id === id) || null;
+  }
+
+  agregarMeta(meta) {
+    if (!(meta instanceof MetaAhorro)) throw new Error("La meta no es válida.");
+    if (this.metasActivas.length >= MetaAhorro.MAX_ACTIVAS) {
+      throw new Error(`Puedes tener máximo ${MetaAhorro.MAX_ACTIVAS} metas activas.`);
+    }
+    this.#metas.push(meta);
+  }
+
+  // Solo se elimina si no tiene dinero apartado (primero hay que devolverlo).
+  eliminarMeta(id) {
+    const meta = this.buscarMeta(id);
+    if (!meta) throw new Error("La meta no existe.");
+    if (meta.ahorrado > 0) {
+      throw new Error("Primero devuelve a tu cuenta el dinero apartado en esta meta.");
+    }
+    this.#metas = this.#metas.filter((m) => m !== meta);
+  }
+
   // ---------- Clave y perfil (HU-08) ----------
   verificarClave(clave) {
     return this.#clave === clave;
@@ -114,6 +154,12 @@ class Cliente {
       throw new Error("La nueva clave debe ser diferente a la actual.");
     }
     this.#clave = claveNueva;
+    this.#debeCambiarClave = false;
+  }
+  // HU-15: el admin aprobó el restablecimiento. Deja una clave temporal y obliga a cambiarla.
+  restablecerClave(claveTemporal) {
+    this.#clave = claveTemporal;
+    this.#debeCambiarClave = true;
   }
 
   // HU-08: edita los datos del perfil. Valida todo antes de cambiar algo.
@@ -202,7 +248,9 @@ class Cliente {
       intentosFallidos: this.#intentosFallidos,
       bloqueadoHasta: this.#bloqueadoHasta ? this.#bloqueadoHasta.toISOString() : null,
       bloqueadoPorAdmin: this.#bloqueadoPorAdmin,
+      debeCambiarClave: this.#debeCambiarClave,
       fechaRegistro: this.#fechaRegistro.toISOString(),
+      metas: this.#metas.map((meta) => meta.toJSON()),
       productos: this.#productos.map((producto) => producto.toJSON()),
     };
   }
@@ -215,7 +263,9 @@ class Cliente {
       intentosFallidos: datos.intentosFallidos,
       bloqueadoHasta: datos.bloqueadoHasta ? new Date(datos.bloqueadoHasta) : null,
       bloqueadoPorAdmin: datos.bloqueadoPorAdmin,
+      debeCambiarClave: datos.debeCambiarClave,
       fechaRegistro: new Date(datos.fechaRegistro),
+      metas: (datos.metas || []).map((meta) => MetaAhorro.fromJSON(meta)),
     });
   }
 }

@@ -95,3 +95,21 @@ footer { padding: 30px 7vw; border-top: 1px solid var(--line); display: flex; al
 .password-toggle { border: 0; padding: 4px; display: grid; place-items: center; color: inherit; background: transparent; cursor: pointer; }
 .password-toggle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 5px; }
 .field-control input[readonly] { color: var(--ink-soft); cursor: not-allowed; }
+
+.card-payment-request { margin-top: 16px; padding: 16px; border: 1px solid #c8e8df; border-radius: 12px; background: #f2fbf8; display: grid; gap: 10px; font-size: 12px; }
+.card-payment-request > div { display: flex; justify-content: space-between; gap: 12px; }
+.card-payment-request > div span, .payment-help { color: var(--ink-soft); }
+.card-payment-request p { margin: 0; line-height: 1.6; }
+.payment-code { font: 700 20px Manrope, sans-serif; letter-spacing: .12em; }
+#card-payment-method-fields .info-note { justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+#card-payment-method-fields .payment-help { margin: -4px 0 14px; font-size: 11px; line-height: 1.55; }
+#card-payment-method-fields select, #card-pay-method { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; }
+.admin-config-panel { max-width: 760px; }
+.admin-config-panel form { display: grid; gap: 15px; }
+.admin-config-panel .field { margin: 0; }
+.admin-config-panel .panel-title > i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 11px; color: var(--teal-dark); background: var(--mint); }
+.admin-config-notice { margin: 0; padding: 12px 14px; border-radius: 10px; font-size: 12px; line-height: 1.5; }
+.admin-config-notice.success { color: #197a6c; background: #e9f8f4; border: 1px solid #b8e8dc; }
+.admin-config-notice.error { color: #b33c46; background: #fff0f0; border: 1px solid #f1c7ca; }
+
+@media (max-width: 620px) { .admin-shell .admin-mobile-nav { display: flex; } }

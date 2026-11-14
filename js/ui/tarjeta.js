@@ -2,6 +2,7 @@
    Pantalla: card (Tarjeta de crédito). */
 
 let cardNotice = null;
+let cardPaymentRequest = null;
 
 function escapeCardHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (caracter) => ({
@@ -22,6 +23,37 @@ function cardNoticeHtml() {
     <div><b>${titulo}</b><span>${escapeCardHtml(cardNotice.mensaje)}</span></div>
     <button type="button" id="card-notice-close" aria-label="Cerrar">×</button>
   </div>`;
+}
+
+function opcionesCuentasPagoHtml() {
+  return (clienteActual?.productos || [])
+    .filter((producto) => producto.codigo === "ahorros" || producto.codigo === "corriente")
+    .map((producto) => `<option value="${escapeCardHtml(producto.numero)}">${escapeCardHtml(producto.tipo)} · ${escapeCardHtml(producto.numero)} · Saldo ${formatMoney(producto.saldo)}</option>`)
+    .join("");
+}
+
+function camposMetodoPagoTarjetaHtml(medio = "cuenta") {
+  if (medio === "cuenta") {
+    const opciones = opcionesCuentasPagoHtml();
+    return opciones
+      ? `<label class="field" for="card-pay-account"><span>Cuenta de origen</span><div class="field-control"><select id="card-pay-account" required>${opciones}</select></div></label><p class="payment-help">El pago se descontará del saldo real de esta cuenta. El sobregiro no cuenta para este pago.</p>`
+      : `<div class="info-note">No tienes cuentas de ahorros o corriente. <button class="btn btn-secondary" type="button" data-go="accounts">Abrir una cuenta</button></div>`;
+  }
+  if (medio === "pse") {
+    const bancos = Sistema.BANCOS_PSE.map((banco) => `<option value="${escapeCardHtml(banco)}">${escapeCardHtml(banco)}</option>`).join("");
+    return `<label class="field" for="card-pay-bank"><span>Banco</span><div class="field-control"><select id="card-pay-bank" required><option value="">Selecciona tu banco</option>${bancos}</select></div></label><p class="payment-help">En una integración real, el enlace de pago se enviaría al correo registrado.</p>`;
+  }
+  return `<p class="payment-help">Generaremos un código para presentar en un corresponsal bancario. En una integración real, también se enviaría al correo registrado.</p>`;
+}
+
+function solicitudPagoExternoHtml() {
+  if (!cardPaymentRequest) return "";
+  const solicitud = cardPaymentRequest;
+  const medio = solicitud.medio === "pse" ? `PSE · ${escapeCardHtml(solicitud.banco)}` : "Efectivo en corresponsal bancario";
+  const dato = solicitud.medio === "pse"
+    ? `<div><span>Referencia</span><b>${escapeCardHtml(solicitud.referencia)}</b></div>`
+    : `<div><span>Código para presentar</span><b class="payment-code">${escapeCardHtml(solicitud.codigo)}</b></div>`;
+  return `<div class="card-payment-request" role="status" aria-live="polite"><b>Solicitud de pago pendiente · ${medio}</b><div><span>Monto</span><b>${formatMoney(solicitud.valor)}</b></div>${dato}<p>Correo registrado: <b>${escapeCardHtml(solicitud.correo)}</b>. Esta versión no envía correos ni se conecta con PSE o corresponsales. La deuda solo bajará cuando el pago se confirme.</p><button type="button" class="btn btn-secondary" id="card-payment-request-close">Cerrar solicitud</button></div>`;
 }
 
 function cardHtml() {
@@ -83,8 +115,11 @@ function cardHtml() {
       <div class="panel-title"><div><h2>Pagar tarjeta</h2><p>Deuda actual: ${formatMoney(tarjeta.deuda)}</p></div></div>
       <form id="card-pay-form">
         <label class="field" for="card-pay-value"><span>Valor del pago</span><div class="field-control"><input id="card-pay-value" name="valor" type="number" min="1" max="${Math.max(0, tarjeta.deuda)}" step="1" required inputmode="numeric" placeholder="250000" ${tarjeta.deuda <= 0 ? "disabled" : ""} /></div></label>
-        <button class="btn btn-primary full" type="submit" ${tarjeta.deuda <= 0 ? "disabled" : ""}><span>Pagar tarjeta</span></button>
+        <label class="field" for="card-pay-method"><span>¿Cómo quieres pagar?</span><div class="field-control"><select id="card-pay-method" ${tarjeta.deuda <= 0 ? "disabled" : ""}><option value="cuenta">Desde mis cuentas MOVA</option><option value="pse">Desde otro banco con PSE</option><option value="corresponsal">Efectivo en corresponsal bancario</option></select></div></label>
+        <div id="card-payment-method-fields"></div>
+        <button class="btn btn-primary full" type="submit" ${tarjeta.deuda <= 0 ? "disabled" : ""}><span>Continuar con el pago</span></button>
       </form>
+      ${solicitudPagoExternoHtml()}
       <div class="rates">
         <b>Próximo pago estimado</b>
         <strong>${tarjeta.proximoPagoEstimado > 0 ? formatMoney(tarjeta.proximoPagoEstimado) : "No tienes pagos pendientes"}</strong>
@@ -144,6 +179,11 @@ function mostrarAvisoTarjeta(tipo, mensaje) {
   });
 }
 
+function actualizarCamposMetodoPagoTarjeta() {
+  const contenedor = document.getElementById("card-payment-method-fields");
+  if (contenedor) contenedor.innerHTML = camposMetodoPagoTarjetaHtml(document.getElementById("card-pay-method")?.value || "cuenta");
+}
+
 function wireCardScreen() {
   const tarjeta = tarjetaActual();
   document.querySelectorAll("#client-content [data-card-scroll]").forEach((boton) => boton.addEventListener("click", () => {
@@ -161,6 +201,13 @@ function wireCardScreen() {
   });
   if (!tarjeta) return;
 
+  actualizarCamposMetodoPagoTarjeta();
+  document.getElementById("card-pay-method")?.addEventListener("change", actualizarCamposMetodoPagoTarjeta);
+  document.getElementById("card-payment-request-close")?.addEventListener("click", () => {
+    cardPaymentRequest = null;
+    renderClientScreen("card");
+  });
+
   document.getElementById("card-buy-value")?.addEventListener("input", actualizarVistaPreviaCompra);
   document.getElementById("card-buy-installments")?.addEventListener("input", actualizarVistaPreviaCompra);
   document.getElementById("card-buy-form")?.addEventListener("submit", (evento) => {
@@ -172,7 +219,7 @@ function wireCardScreen() {
       if (!Number.isInteger(cuotas) || cuotas < 1 || cuotas > 36) throw new Error("El número de cuotas debe estar entre 1 y 36.");
       const resultado = sistema.comprarConTarjeta(clienteActual, tarjeta.numero, valor, cuotas, descripcion);
       const tasa = (resultado.tasaMensual * 100).toLocaleString("es-CO", { maximumFractionDigits: 1 });
-      mostrarAvisoTarjeta("success", `Compra aprobada. Cuota mensual: ${formatMoney(resultado.cuotaMensual)} por ${resultado.cuotas} cuotas, tasa ${tasa} % mensual, total: ${formatMoney(resultado.totalAPagar)}.`);
+      mostrarAvisoTarjeta("success", `Compra por ${formatMoney(resultado.valorCompra)} aprobada. Cuota mensual: ${formatMoney(resultado.cuotaMensual)} por ${resultado.cuotas} cuotas, tasa ${tasa} % mensual, total: ${formatMoney(resultado.totalAPagar)}.`);
     } catch (error) {
       mostrarAvisoTarjeta("error", error.message);
     }
@@ -181,8 +228,18 @@ function wireCardScreen() {
     evento.preventDefault();
     try {
       const valor = Number(document.getElementById("card-pay-value").value);
-      sistema.pagarTarjeta(clienteActual, tarjeta.numero, valor);
-      mostrarAvisoTarjeta("success", `Pago aplicado por ${formatMoney(valor)}.`);
+      const medio = document.getElementById("card-pay-method").value;
+      if (medio === "cuenta") {
+        const numeroCuenta = document.getElementById("card-pay-account")?.value;
+        if (!numeroCuenta) throw new Error("Abre una cuenta de ahorros o corriente antes de pagar desde MOVA.");
+        sistema.pagarTarjetaDesdeCuenta(clienteActual, numeroCuenta, tarjeta.numero, valor);
+        cardPaymentRequest = null;
+        mostrarAvisoTarjeta("success", `Pago aplicado por ${formatMoney(valor)}. Se descontó de tu cuenta y se redujo la deuda de la tarjeta.`);
+      } else {
+        const banco = medio === "pse" ? document.getElementById("card-pay-bank")?.value : "";
+        cardPaymentRequest = sistema.solicitarPagoExternoTarjeta(clienteActual, tarjeta.numero, valor, medio, banco);
+        renderClientScreen("card");
+      }
     } catch (error) {
       mostrarAvisoTarjeta("error", error.message);
     }

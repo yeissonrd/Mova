@@ -130,7 +130,7 @@ class CentroAyuda {
     },
     {
       pregunta: "¿Cuánto puedo retirar?",
-      respuesta: "En la cuenta de ahorros puedes retirar hasta tu saldo disponible, pero cada retiro cobra un interés del 1,5 % que también se descuenta. En la cuenta corriente puedes retirar hasta tu saldo más un 20 % adicional (sobregiro) y no cobra interés.",
+      respuesta: "En la cuenta de ahorros puedes retirar hasta tu saldo disponible. En el primer retiro de cada mes se abona a tu cuenta un rendimiento del 1,5 % sobre el monto retirado. En la cuenta corriente puedes retirar hasta tu saldo más un 20 % adicional (sobregiro) y no cobra interés.",
     },
     {
       pregunta: "¿Cómo transfiero a otra persona?",

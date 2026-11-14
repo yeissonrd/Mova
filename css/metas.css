@@ -1,0 +1,61 @@
+/* MOVA — css/metas.css (HU-17: metas de ahorro) */
+.quick-actions { grid-template-columns: repeat(4, 1fr); }
+
+.metas-aviso { margin: 0 0 16px; padding: 12px 15px; border-radius: 11px; font-size: 13px; }
+.metas-aviso.ok { color: #197a6c; background: #e9f8f4; border: 1px solid #b8e8dc; }
+.metas-aviso[hidden] { display: none; }
+
+.metas-resumen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 17px; }
+.metas-resumen > div { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+.metas-resumen small { color: var(--ink-soft); font-size: 11px; }
+.metas-resumen b { font: 700 21px "Manrope", sans-serif; color: var(--navy); }
+
+.metas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 17px; }
+.meta-card { display: flex; flex-direction: column; gap: 10px; }
+.meta-cabecera { display: flex; align-items: center; gap: 10px; }
+.meta-cabecera > i { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--mint); color: var(--teal-dark); }
+.meta-cabecera h3 { margin: 0; flex: 1; font: 700 16px "Manrope", sans-serif; overflow-wrap: anywhere; }
+.meta-estado { font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 20px; background: #e8efff; color: var(--blue); }
+.meta-card.cumplida .meta-estado { background: var(--mint); color: var(--teal-dark); }
+.meta-card.cumplida { border-color: #a8dfd3; }
+.meta-cifras { margin: 4px 0 0; color: var(--ink-soft); font-size: 13px; }
+.meta-cifras b { font: 700 22px "Manrope", sans-serif; color: var(--ink); }
+.meta-barra { height: 10px; border-radius: 6px; background: #e3ecea; overflow: hidden; }
+.meta-barra span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--teal), #57d7c0); transition: width .3s; }
+.meta-avance { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-soft); }
+.meta-avance span:first-child { font-weight: 800; color: var(--teal-dark); }
+.meta-detalle { margin: 0; font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+.meta-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.meta-acciones .btn { min-height: 38px; padding: 0 14px; font-size: 12px; }
+.meta-acciones .btn:disabled, #metas-nueva:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.meta-eliminar { margin-left: auto; border: 0; background: none; color: var(--red); font-weight: 700; font-size: 12px; cursor: pointer; }
+
+.metas-vacio { text-align: center; padding: 36px 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.metas-vacio > i { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: var(--mint); color: var(--teal-dark); }
+.metas-vacio h2 { margin: 6px 0 0; font: 700 18px "Manrope", sans-serif; }
+.metas-vacio p { margin: 0 0 8px; max-width: 460px; color: var(--ink-soft); font-size: 13px; line-height: 1.55; }
+.metas-nota { margin: 18px 0 0; font-size: 11px; color: var(--ink-soft); line-height: 1.55; }
+
+.metas-fondo { position: fixed; inset: 0; z-index: 1100; background: rgba(13, 51, 59, .45); display: grid; place-items: center; padding: 16px; }
+.metas-modal { width: 100%; max-width: 440px; background: white; border-radius: 16px; padding: 26px; box-shadow: var(--shadow); }
+.metas-modal h2 { font: 700 20px "Manrope", sans-serif; margin: 0 0 6px; overflow-wrap: anywhere; }
+.metas-modal > p { margin: 0 0 18px; color: var(--ink-soft); font-size: 12px; line-height: 1.55; }
+.metas-modal .field { display: block; margin-bottom: 14px; }
+.metas-modal .field > span { display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.meta-todo { border: 0; background: none; padding: 0; margin: -6px 0 6px; color: var(--teal-dark); font-weight: 700; font-size: 12px; cursor: pointer; }
+.metas-error { color: #b33c46; background: #fff0f0; border: 1px solid #f1c7ca; border-radius: 10px; padding: 10px 12px; font-size: 12px; margin: 4px 0 0; }
+.metas-error[hidden] { display: none; }
+.metas-modal-acciones { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+/* Acceso desde la cuenta de ahorros en Mis cuentas */
+.metas-acceso { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 12px; padding: 11px 13px; border: 1px dashed #a8dfd3; border-radius: 11px; background: var(--mint-light); color: var(--teal-dark); font-weight: 700; font-size: 12px; cursor: pointer; }
+.metas-acceso small { margin-left: auto; color: var(--ink-soft); font-weight: 500; }
+
+@media (max-width: 620px) {
+  .quick-actions { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .quick-actions button { padding: 12px 6px; }
+  .quick-actions button > i:last-child { display: none; } /* la flecha no aporta en celular */
+  .metas-resumen { grid-template-columns: 1fr; }
+  .metas-grid { grid-template-columns: 1fr; }
+  .metas-modal-acciones .btn { flex: 1; }
+}

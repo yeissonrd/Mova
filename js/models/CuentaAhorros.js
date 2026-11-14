@@ -1,6 +1,6 @@
 /* ============================================================
    CuentaAhorros — hereda de Cuenta (HU-04).
-   Regla propia: cada retiro cobra un interés del 1,5 %.
+   Regla propia: el primer retiro del mes abona al cliente un interés del 1,5 %.
    ============================================================ */
 class CuentaAhorros extends Cuenta {
   static TASA_RETIRO = 0.015; // 1,5 %
@@ -18,25 +18,48 @@ class CuentaAhorros extends Cuenta {
   }
 
   // Sobrescribe retirar() de Cuenta (polimorfismo).
-  // El interés se cobra ADEMÁS del valor retirado, así que el saldo debe alcanzar para los dos.
+  // El retiro no supera el saldo disponible; se abona una sola vez por mes calendario.
   retirar(valor) {
     this._validarMonto(valor);
-    const interes = Math.round(valor * CuentaAhorros.TASA_RETIRO);
-    const total = valor + interes;
-
-    if (total > this.limiteRetiro()) {
-      throw new Error(
-        `Saldo insuficiente. El retiro más el interés del 1,5 % (${Cuenta.formatear(interes)}) suma ` +
-          `${Cuenta.formatear(total)} y tu saldo es ${Cuenta.formatear(this.saldo)}.`
-      );
+    if (!Number.isInteger(valor)) throw new Error("El valor debe expresarse en pesos enteros.");
+    if (valor > this.saldo) {
+      throw new Error(`Saldo insuficiente. Puedes retirar hasta ${Cuenta.formatear(this.saldo)}.`);
     }
 
+    const interes = this.#yaAbonoEsteMes() ? 0 : Math.round(valor * CuentaAhorros.TASA_RETIRO);
     const retiro = this._aplicar("Retiro", -valor, { interes });
-    this._aplicar("Interés por retiro (1,5 %)", -interes, { tasa: CuentaAhorros.TASA_RETIRO, base: valor });
+    if (interes > 0) {
+      this._aplicar("Interés abonado (1,5 %)", interes, { tasa: CuentaAhorros.TASA_RETIRO, base: valor });
+    }
     return retiro;
+  }
+
+  // ---------- HU-17: metas de ahorro ----------
+  // Aparta dinero hacia una meta. No es un retiro: no abona el 1,5 % y no puede superar el saldo.
+  apartarParaMeta(valor, meta) {
+    this._validarMonto(valor);
+    if (valor > this.saldo) {
+      throw new Error(`Saldo insuficiente. Puedes apartar hasta ${Cuenta.formatear(this.saldo)}.`);
+    }
+    return this._aplicar("Aporte a meta", -valor, { meta: meta.nombre, metaId: meta.id });
+  }
+
+  // Devuelve a la cuenta dinero que estaba apartado en una meta.
+  devolverDeMeta(valor, meta) {
+    this._validarMonto(valor);
+    return this._aplicar("Devolución de meta", valor, { meta: meta.nombre, metaId: meta.id });
   }
 
   static fromJSON(datos) {
     return new CuentaAhorros(datos.numero, datos.saldo, datos.movimientos.map((m) => Movimiento.fromJSON(m)));
+  }
+
+  #yaAbonoEsteMes() {
+    const hoy = new Date();
+    return this.historial().some((movimiento) => {
+      if (movimiento.tipo !== "Interés abonado (1,5 %)") return false;
+      const fecha = movimiento.fecha instanceof Date ? movimiento.fecha : new Date(movimiento.fecha);
+      return Number.isFinite(fecha.getTime()) && fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+    });
   }
 }

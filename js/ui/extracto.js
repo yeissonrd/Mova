@@ -1,27 +1,42 @@
-/* MOVA — js/ui/extracto.js  (CORRECCIONES: extracto mensual en PDF)
+/* MOVA — js/ui/extracto.js  (CORRECCIONES: extracto mensual en PDF · HU-12: extracto por cliente)
    El botón "Descargar extracto" del Inicio abre una ventana para elegir el mes
    (por defecto el actual) y genera un extracto con formato de banco.
+   HU-12: el administrador usa la MISMA ventana y el MISMO formato desde el detalle
+   de cualquier cliente, con la opción adicional "Todo el historial".
    No usa librerías: arma una página imprimible y abre el diálogo de impresión,
    donde se elige "Guardar como PDF". */
 
 /* ===================== CLASE: Extracto ===================== */
 class Extracto {
   static MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  static TODO = "todo"; // HU-12: en vez de un año, pide todo el historial del cliente
 
   #cliente;
-  #desde; // primer instante del mes
-  #hasta; // primer instante del mes siguiente
+  #desde; // primer instante del periodo
+  #hasta; // primer instante después del periodo
+  #completo;
 
+  // new Extracto(cliente, 2026, 10) = noviembre de 2026 · new Extracto(cliente, Extracto.TODO) = todo el historial.
   constructor(cliente, anio, mes) {
     this.#cliente = cliente;
-    this.#desde = new Date(anio, mes, 1);
-    this.#hasta = new Date(anio, mes + 1, 1);
+    this.#completo = anio === Extracto.TODO;
+    if (this.#completo) {
+      this.#desde = new Date(0);
+      this.#hasta = new Date(Date.now() + 1000);
+    } else {
+      this.#desde = new Date(anio, mes, 1);
+      this.#hasta = new Date(anio, mes + 1, 1);
+    }
   }
 
   get cliente() { return this.#cliente; }
   get desde() { return this.#desde; }
 
   get nombrePeriodo() {
+    if (this.#completo) {
+      const hoy = new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" });
+      return `historial completo al ${hoy}`;
+    }
     return `${Extracto.MESES[this.#desde.getMonth()]} de ${this.#desde.getFullYear()}`;
   }
 
@@ -71,6 +86,11 @@ class Extracto {
   /* ---------- HTML imprimible ---------- */
   static #esc(valor) {
     return String(valor ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+
+  // Versión pública del escape para la ventana de elegir mes.
+  static escapar(valor) {
+    return Extracto.#esc(valor);
   }
 
   static #descripcion(m) {
@@ -169,7 +189,7 @@ class Extracto {
 <body>
   <header>
     <div class="marca">MOVA<small>Mueve tu dinero. Maneja tu futuro.</small></div>
-    <div><h1>Extracto de cuenta</h1><p>${esc(this.nombrePeriodo)}</p></div>
+    <div><h1>Extracto de cuenta</h1><p>${esc(this.nombrePeriodo.charAt(0).toUpperCase() + this.nombrePeriodo.slice(1))}</p></div>
   </header>
   <div class="cliente">
     <div><span>Cliente: </span><b>${esc(c.nombre)}</b></div>
@@ -195,8 +215,10 @@ function cerrarVentanaExtracto() {
   if (fondo) fondo.remove();
 }
 
-function abrirVentanaExtracto() {
-  if (!clienteActual) return;
+// cliente: el cliente que inició sesión (por defecto) o el que eligió el administrador (HU-12).
+// conHistorial: agrega la opción "Todo el historial" (solo la usa el administrador).
+function abrirVentanaExtracto(cliente = clienteActual, { conHistorial = false } = {}) {
+  if (!cliente) return;
   cerrarVentanaExtracto();
   const meses = Extracto.mesesDisponibles();
   const opciones = meses
@@ -204,14 +226,15 @@ function abrirVentanaExtracto() {
       const nombre = Extracto.MESES[m.mes];
       return `<option value="${m.anio}-${m.mes}"${i === 0 ? " selected" : ""}>${nombre.charAt(0).toUpperCase() + nombre.slice(1)} ${m.anio}${i === 0 ? " (mes actual)" : ""}</option>`;
     })
-    .join("");
+    .join("") + (conHistorial ? `<option value="${Extracto.TODO}">Todo el historial</option>` : "");
+  const titulo = cliente === clienteActual ? "Descargar extracto" : `Extracto de ${Extracto.escapar(cliente.nombre)}`;
 
   const fondo = document.createElement("div");
   fondo.id = "extracto-fondo";
   fondo.className = "extracto-fondo";
   fondo.innerHTML = `
     <div class="extracto-modal" role="dialog" aria-modal="true" aria-labelledby="extracto-titulo">
-      <h2 id="extracto-titulo">Descargar extracto</h2>
+      <h2 id="extracto-titulo">${titulo}</h2>
       <p>Elige el mes. Se abrirá la ventana de impresión: selecciona <b>Guardar como PDF</b> como destino.</p>
       <label class="field"><span>Mes del extracto</span><div class="field-control"><select id="extracto-mes">${opciones}</select></div></label>
       <div class="extracto-acciones">
@@ -226,8 +249,11 @@ function abrirVentanaExtracto() {
   });
   document.getElementById("extracto-cancelar").addEventListener("click", cerrarVentanaExtracto);
   document.getElementById("extracto-generar").addEventListener("click", () => {
-    const [anio, mes] = document.getElementById("extracto-mes").value.split("-").map(Number);
-    imprimirExtracto(new Extracto(clienteActual, anio, mes));
+    const valor = document.getElementById("extracto-mes").value;
+    const extracto = valor === Extracto.TODO
+      ? new Extracto(cliente, Extracto.TODO)
+      : new Extracto(cliente, ...valor.split("-").map(Number));
+    imprimirExtracto(extracto);
     cerrarVentanaExtracto();
   });
 }
@@ -240,8 +266,8 @@ function imprimirExtracto(extracto) {
   marco.srcdoc = extracto.toHtml();
   marco.addEventListener("load", () => {
     const tituloOriginal = document.title;
-    // Chrome sugiere el título de la página como nombre del archivo PDF
-    document.title = `Extracto MOVA - ${extracto.nombrePeriodo}`;
+    // Chrome sugiere el título de la página como nombre del archivo PDF (incluye el cliente)
+    document.title = `Extracto MOVA - ${extracto.cliente.nombre} - ${extracto.nombrePeriodo}`;
     const limpiar = () => {
       document.title = tituloOriginal;
       marco.remove();
@@ -261,7 +287,11 @@ alIniciar(() => {
   contenido.addEventListener("click", (e) => {
     if (e.target.closest("#btn-extracto")) abrirVentanaExtracto();
   });
+  // Escape cierra solo esta ventana (si se abrió desde el panel del admin, el detalle del cliente queda abierto).
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") cerrarVentanaExtracto();
+    if (e.key === "Escape" && document.getElementById("extracto-fondo")) {
+      cerrarVentanaExtracto();
+      e.stopImmediatePropagation();
+    }
   });
 });

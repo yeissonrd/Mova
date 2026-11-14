@@ -62,6 +62,7 @@ alIniciar(() => {
         actualizarEncabezadoCliente();
         document.getElementById("login-clave").value = "";
         go("dashboard");
+        if (clienteActual.debeCambiarClave) exigirCambioClave(); // cambio-clave-obligatorio.js (HU-15)
       } catch (error) {
         loginError.textContent = error.message;
         loginError.style.display = "block";

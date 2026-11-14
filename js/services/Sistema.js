@@ -19,11 +19,20 @@ class Sistema {
   // Límites del cupo que el administrador puede asignar al aprobar una tarjeta.
   static CUPO_MINIMO = 500000;
   static CUPO_MAXIMO = 20000000;
+  static BANCOS_PSE = Object.freeze([
+    "Bancolombia", "Nu (NU Bank)", "Davivienda", "Banco de Bogotá", "BBVA Colombia",
+    "Banco de Occidente", "Banco Caja Social", "Banco AV Villas", "Banco Agrario",
+    "Banco Popular", "Banco Falabella", "Bancoomeva", "Banco Pichincha",
+    "GNB Sudameris", "Banco Santander", "Nequi", "DaviPlata",
+  ]);
 
   #almacen;
   #clientes = [];
   #solicitudes = [];
   #administrador = null;
+  #restablecimientos = [];
+  #subadministradores = []; // HU-14
+  #bitacora = []; // HU-16
 
   constructor(almacen = Sistema.almacenPorDefecto()) {
     this.#almacen = almacen;
@@ -55,6 +64,9 @@ class Sistema {
       administrador: this.#administrador,
       clientes: this.#clientes,
       solicitudes: this.#solicitudes,
+      restablecimientos: this.#restablecimientos,
+      subadministradores: this.#subadministradores, // HU-14
+      bitacora: this.#bitacora,
     };
     this.#almacen.setItem(Sistema.CLAVE_ALMACEN, JSON.stringify(estado)); // usa el toJSON() de cada clase
   }
@@ -64,12 +76,17 @@ class Sistema {
     this.#clientes = [];
     this.#solicitudes = [];
     this.#administrador = null;
+    this.#subadministradores = []; // HU-14
+    this.#bitacora = [];
     const texto = this.#almacen.getItem(Sistema.CLAVE_ALMACEN);
     if (texto) {
       try {
         const estado = JSON.parse(texto);
         this.#clientes = (estado.clientes || []).map((datos) => Cliente.fromJSON(datos));
         this.#solicitudes = (estado.solicitudes || []).map((datos) => Solicitud.fromJSON(datos));
+        this.#restablecimientos = (estado.restablecimientos || []).map((datos) => Restablecimiento.fromJSON(datos));
+        this.#subadministradores = (estado.subadministradores || []).map((datos) => new Subadministrador(datos, this)); // HU-14 
+        this.#bitacora = (estado.bitacora || []).map((datos) => RegistroBitacora.fromJSON(datos));
         if (estado.administrador) {
           this.#administrador = new Administrador(estado.administrador, this);
         }
@@ -114,9 +131,28 @@ class Sistema {
       )
     );
   }
+  // HU-15: solicitudes de restablecimiento de clave (la más reciente primero).
+  get restablecimientos() {
+    return [...this.#restablecimientos].sort((a, b) => b.fecha - a.fecha);
+  }
+
+  get restablecimientosPendientes() {
+    return this.restablecimientos.filter((restablecimiento) => restablecimiento.pendiente);
+  }
 
   get administrador() {
     return this.#administrador;
+  }
+
+  get bitacora() {
+    return [...this.#bitacora].sort((a, b) => b.fecha - a.fecha);
+  }
+
+  registrarAccion(actor, accion, detalle = "", rol = "Administrador") {
+    const registro = new RegistroBitacora({ actor, accion, detalle, rol });
+    this.#bitacora.push(registro);
+    this.guardar();
+    return registro;
   }
 
   static normalizar(texto) {
@@ -201,6 +237,54 @@ class Sistema {
     this.guardar();
     return solicitud;
   }
+    // ---------- Recuperar contraseña (HU-15) ----------
+  // El cliente olvidó su clave: usuario, identificación y correo deben coincidir con un cliente.
+  solicitarRestablecimiento(userName, identificacion, correo) {
+    const cliente = this.buscarCliente(userName);
+    const coincide =
+      cliente &&
+      Sistema.normalizar(cliente.identificacion) === Sistema.normalizar(identificacion) &&
+      Sistema.normalizar(cliente.correo) === Sistema.normalizar(correo);
+    if (!coincide) {
+      throw new Error("Los datos no coinciden con ningún cliente.");
+    }
+    const yaPendiente = this.#restablecimientos.some(
+      (r) => r.pendiente && Sistema.normalizar(r.userName) === Sistema.normalizar(cliente.userName)
+    );
+    if (yaPendiente) {
+      throw new Error("Ya tienes una solicitud de restablecimiento en revisión.");
+    }
+    const numero = String(this.#restablecimientos.length + 1).padStart(4, "0");
+    const restablecimiento = new Restablecimiento({
+      id: `REC-${numero}`,
+      userName: cliente.userName,
+      nombre: cliente.nombre,
+      identificacion: cliente.identificacion,
+      correo: cliente.correo,
+    });
+    this.#restablecimientos.push(restablecimiento);
+    this.guardar();
+    return restablecimiento;
+  }
+
+  // El administrador aprueba: se genera una clave temporal y el cliente deberá cambiarla al entrar.
+  aprobarRestablecimiento(id) {
+    const restablecimiento = this.#exigirRestablecimientoPendiente(id);
+    const cliente = this.#exigirCliente(restablecimiento.userName);
+    const claveTemporal = this.#generarClaveTemporal();
+    cliente.restablecerClave(claveTemporal);
+    cliente.reiniciarIntentos();
+    restablecimiento.aprobar();
+    this.guardar();
+    return { cliente, claveTemporal };
+  }
+
+  denegarRestablecimiento(id) {
+    const restablecimiento = this.#exigirRestablecimientoPendiente(id);
+    restablecimiento.denegar();
+    this.guardar();
+    return restablecimiento;
+  }
 
   actualizarCliente(userName, cambios) {
     const cliente = this.#exigirCliente(userName);
@@ -259,6 +343,70 @@ class Sistema {
     this.guardar();
   }
 
+  // HU-13: actualiza la clave del administrador y persiste el administrador en localStorage.
+  cambiarClaveAdministrador(claveActual, claveNueva, confirmacion) {
+    if (!this.#administrador) {
+      throw new Error("No se encontró la cuenta de administrador.");
+    }
+    this.#administrador.cambiarClave(claveActual, claveNueva, confirmacion);
+    this.guardar();
+  }
+
+  // ---------- HU-14: subadministradores ----------
+  get subadministradores() {
+    return [...this.#subadministradores];
+  }
+
+  buscarSubadministrador(userName) {
+    const buscado = Sistema.normalizar(userName);
+    return this.#subadministradores.find((s) => Sistema.normalizar(s.userName) === buscado) || null;
+  }
+
+  // El usuario debe ser único entre el administrador, los subadministradores y los clientes.
+  crearSubadministrador({ nombre, userName, clave, permisos }) {
+    const nombreLimpio = String(nombre || "").trim();
+    const usuario = String(userName || "").trim();
+    if (!nombreLimpio) throw new Error("Escribe el nombre del subadministrador.");
+    if (!usuario) throw new Error("Escribe el nombre de usuario.");
+    if (this.#usuarioEnUso(usuario)) throw new Error("Ese nombre de usuario ya está en uso.");
+    if (typeof clave !== "string" || clave.length < Administrador.LARGO_MINIMO_CLAVE) {
+      throw new Error(`La clave debe tener mínimo ${Administrador.LARGO_MINIMO_CLAVE} caracteres.`);
+    }
+    const subadministrador = new Subadministrador({ nombre: nombreLimpio, userName: usuario, clave, permisos }, this);
+    this.#subadministradores.push(subadministrador);
+    this.guardar();
+    return subadministrador;
+  }
+
+  editarSubadministrador(userName, { nombre, permisos }) {
+    const subadministrador = this.#exigirSubadministrador(userName);
+    const nombreLimpio = String(nombre || "").trim();
+    if (!nombreLimpio) throw new Error("Escribe el nombre del subadministrador.");
+    subadministrador.nombre = nombreLimpio;
+    subadministrador.asignarPermisos(permisos || []);
+    this.guardar();
+    return subadministrador;
+  }
+
+  eliminarSubadministrador(userName) {
+    const subadministrador = this.#exigirSubadministrador(userName);
+    this.#subadministradores = this.#subadministradores.filter((s) => s !== subadministrador);
+    this.guardar();
+  }
+
+  #exigirSubadministrador(userName) {
+    const subadministrador = this.buscarSubadministrador(userName);
+    if (!subadministrador) throw new Error("El subadministrador no existe.");
+    return subadministrador;
+  }
+
+  #usuarioEnUso(userName) {
+    return (
+      Sistema.normalizar(userName) === Sistema.normalizar(this.#administrador.userName) ||
+      this.buscarSubadministrador(userName) !== null ||
+      this.buscarCliente(userName) !== null
+    );
+  }
   // HU-08: edición de perfil por parte del propio cliente.
   actualizarPerfil(cliente, cambios) {
     return this.actualizarCliente(cliente.userName, cambios);
@@ -302,7 +450,7 @@ class Sistema {
   }
 
   autenticarAdministrador(userName, clave) {
-    const admin = this.#administrador;
+      const admin = [this.#administrador, ...this.#subadministradores].find((a) => Sistema.normalizar(a.userName) === Sistema.normalizar(userName)) || this.#administrador; // HU-14: también entran los subadministradores
     if (Sistema.normalizar(userName) !== Sistema.normalizar(admin.userName) || !admin.verificarClave(clave)) {
       throw new Error("El usuario o la clave no son correctos.");
     }
@@ -343,6 +491,92 @@ class Sistema {
     return movimiento;
   }
 
+  pagarTarjetaDesdeCuenta(cliente, numeroCuenta, numeroTarjeta, valor) {
+    const origen = this.#exigirProducto(cliente, numeroCuenta);
+    const tarjeta = this.#exigirProducto(cliente, numeroTarjeta);
+    if (!(tarjeta instanceof TarjetaCredito)) throw new Error("El producto elegido no es una tarjeta de crédito.");
+    if (origen.codigo !== "ahorros" && origen.codigo !== "corriente") {
+      throw new Error("Selecciona una cuenta de ahorros o corriente para pagar.");
+    }
+    if (!Number.isInteger(valor) || valor <= 0) throw new Error("El valor del pago debe ser un número entero mayor a cero.");
+    if (valor > tarjeta.deuda) throw new Error("El pago no puede superar la deuda actual de la tarjeta.");
+    if (valor > origen.saldo) throw new Error("Saldo insuficiente. Elige un monto que no supere el saldo disponible de la cuenta.");
+
+    // Ambas operaciones ya están validadas antes de modificar cualquiera de los productos.
+    const movimientoTarjeta = tarjeta.pagar(valor);
+    const movimientoCuenta = origen.debitarPagoTarjeta(valor, tarjeta.numero);
+    this.guardar();
+    return { movimientoTarjeta, movimientoCuenta, saldoCuenta: origen.saldo, deudaTarjeta: tarjeta.deuda };
+  }
+
+  solicitarPagoExternoTarjeta(cliente, numeroTarjeta, valor, medio, banco = "") {
+    const tarjeta = this.#exigirProducto(cliente, numeroTarjeta);
+    if (!(tarjeta instanceof TarjetaCredito)) throw new Error("El producto elegido no es una tarjeta de crédito.");
+    if (!Number.isInteger(valor) || valor <= 0) throw new Error("El valor del pago debe ser un número entero mayor a cero.");
+    if (valor > tarjeta.deuda) throw new Error("El pago no puede superar la deuda actual de la tarjeta.");
+    if (medio !== "pse" && medio !== "corresponsal") throw new Error("El medio de pago no es válido.");
+    if (medio === "pse" && !Sistema.BANCOS_PSE.includes(banco)) throw new Error("Selecciona un banco válido para continuar.");
+
+    const referencia = `MOVA-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const codigo = medio === "corresponsal" ? String(Math.floor(10000000 + Math.random() * 90000000)) : null;
+    return { medio, banco: medio === "pse" ? banco : null, valor, referencia, codigo, correo: cliente.correo, estado: "pendiente" };
+  }
+
+  // ---------- HU-17: metas de ahorro ----------
+  // Todas usan la cuenta de ahorros del cliente y guardan al terminar.
+  #exigirAhorros(cliente) {
+    const cuenta = cliente.buscarProductoPorCodigo("ahorros");
+    if (!cuenta) {
+      throw new Error("Necesitas una cuenta de ahorros para crear metas.");
+    }
+    return cuenta;
+  }
+
+  #exigirMeta(cliente, id) {
+    const meta = cliente.buscarMeta(id);
+    if (!meta) throw new Error("La meta no existe.");
+    return meta;
+  }
+
+  crearMeta(cliente, { nombre, objetivo, fechaLimite = null }) {
+    this.#exigirAhorros(cliente);
+    MetaAhorro.validar({ nombre, objetivo, fechaLimite });
+    const repetida = cliente.metas.some((m) => !m.cumplida && Sistema.normalizar(m.nombre) === Sistema.normalizar(nombre));
+    if (repetida) throw new Error("Ya tienes una meta activa con ese nombre.");
+    const id = "META-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 1000);
+    const meta = new MetaAhorro({ id, nombre, objetivo, fechaLimite });
+    cliente.agregarMeta(meta);
+    this.guardar();
+    return meta;
+  }
+
+  // Pasa dinero de la cuenta de ahorros a la meta (se valida todo antes de mover el dinero).
+  aportarAMeta(cliente, id, valor) {
+    const cuenta = this.#exigirAhorros(cliente);
+    const meta = this.#exigirMeta(cliente, id);
+    if (!Number.isInteger(valor) || valor <= 0) throw new Error("El valor debe ser un número entero de pesos mayor a 0.");
+    if (valor > cuenta.saldo) throw new Error(`Saldo insuficiente. Puedes apartar hasta ${Cuenta.formatear(cuenta.saldo)}.`);
+    meta.aportar(valor);
+    const movimiento = cuenta.apartarParaMeta(valor, meta);
+    this.guardar();
+    return movimiento;
+  }
+
+  // Devuelve dinero de la meta a la cuenta de ahorros.
+  devolverDeMeta(cliente, id, valor) {
+    const cuenta = this.#exigirAhorros(cliente);
+    const meta = this.#exigirMeta(cliente, id);
+    meta.devolver(valor);
+    const movimiento = cuenta.devolverDeMeta(valor, meta);
+    this.guardar();
+    return movimiento;
+  }
+
+  eliminarMeta(cliente, id) {
+    cliente.eliminarMeta(id);
+    this.guardar();
+  }
+
   // ---------- Transferencias (HU-07) ----------
   transferir(clienteOrigen, numeroOrigen, numeroDestino, valor) {
     const origen = this.#exigirProducto(clienteOrigen, numeroOrigen);
@@ -374,6 +608,21 @@ class Sistema {
       return new TarjetaCredito(this.#generarNumero(), cupoTarjeta);
     }
     return new Clase(this.#generarNumero());
+  }
+    #exigirRestablecimientoPendiente(id) {
+    const restablecimiento = this.#restablecimientos.find((r) => r.id === id);
+    if (!restablecimiento) {
+      throw new Error("La solicitud de restablecimiento no existe.");
+    }
+    if (!restablecimiento.pendiente) {
+      throw new Error(`La solicitud ${id} ya fue ${restablecimiento.estado.toLowerCase()}.`);
+    }
+    return restablecimiento;
+  }
+
+  // Clave temporal de 10 caracteres (cumple el mínimo de 8). El cliente deberá cambiarla al entrar.
+  #generarClaveTemporal() {
+    return "Mova" + String(Math.floor(Math.random() * 9e5) + 1e5);
   }
 
   #exigirSolicitudPendiente(id) {

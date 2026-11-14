@@ -22,7 +22,7 @@ function cuentasDelCliente(cliente) {
 function notaCuentaHtml(p) {
   const texto =
     p.codigo === "ahorros"
-      ? "Los retiros aplican un interés del 1,5 %."
+      ? "En el primer retiro de cada mes se abona a tu cuenta un rendimiento del 1,5 % sobre el monto retirado."
       : p.saldo <= 0
         ? "No puedes retirar hasta volver a consignar (tu saldo está en 0 o negativo)."
         : `Sobregiro: puedes retirar hasta ${formatMoney(p.limiteRetiro())} (saldo + 20 %).`;
@@ -44,22 +44,29 @@ function cuentaCardHtml(p, destacada) {
         <button class="btn btn-secondary" data-op="retirar" data-numero="${p.numero}"><i data-icon="minus" data-size="18"></i><span>Retirar</span></button>
       </div>
       ${notaCuentaHtml(p)}
+      ${p.codigo === "ahorros" ? metasAccesoHtml() : ""}
     </section>`;
+}
+
+// HU-17: acceso a las metas de ahorro desde la cuenta de ahorros (metas.js).
+function metasAccesoHtml() {
+  const enMetas = clienteActual ? clienteActual.totalEnMetas : 0;
+  return `<button class="metas-acceso" data-go="goals"><i data-icon="meta" data-size="17"></i>Mis metas de ahorro<small>${enMetas > 0 ? formatMoney(enMetas) + " apartados" : "Crea tu primera meta"}</small></button>`;
 }
 
 // Movimientos de las cuentas (ahorros y corriente), del más reciente al más antiguo.
 function movimientosCuentasHtml(cuentas) {
   const items = cuentas
-    .flatMap((p) => p.historial())
-    .sort((a, b) => b.fecha - a.fecha)
+    .flatMap((producto) => producto.historial().map((movimiento) => ({ producto, movimiento })))
+    .sort((a, b) => b.movimiento.fecha - a.movimiento.fecha)
     .slice(0, 8);
   if (items.length === 0) return `<p class="empty">Aún no tienes movimientos.</p>`;
   return `<div class="movement-list">${items
     .map(
-      (m) => `
+      ({ producto, movimiento: m }) => `
     <div class="movement">
       <i class="${m.esIngreso ? "green" : "red"}" data-icon="${m.esIngreso ? "plus" : "minus"}" data-size="18"></i>
-      <div><b>${m.tipo}</b><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
+      <div><b>${m.tipo}</b><small>${producto.tipo} · ${producto.numero}</small><small>${m.fecha.toLocaleString("es-CO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>
       <strong class="${m.esIngreso ? "positive" : ""}">${m.esIngreso ? "+" : "−"} ${formatMoney(Math.abs(m.monto))}</strong>
     </div>`,
     )
@@ -124,7 +131,7 @@ function operarCuenta(operacion, numero) {
 
     let mensaje = `${operacion === "consignar" ? "Consignaste" : "Retiraste"} ${formatMoney(valor)}.`;
     if (movimiento.detalle && movimiento.detalle.interes) {
-      mensaje += ` Se cobró un interés de ${formatMoney(movimiento.detalle.interes)}.`;
+      mensaje += ` Se abonó un interés de ${formatMoney(movimiento.detalle.interes)} a tu cuenta.`;
     }
     mensaje += ` Nuevo saldo: ${formatMoney(clienteActual.buscarProducto(numero).saldo)}.`;
 
